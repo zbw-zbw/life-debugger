@@ -34,11 +34,11 @@ function AchievementCard({ achievement, index }: { achievement: Achievement; ind
   return (
     <div
       ref={ref}
-      className={`relative rounded-xl border overflow-hidden transition-all duration-300 ${
+      className={`relative rounded-xl border overflow-hidden transition-all duration-600 ${
         achievement.unlocked
           ? 'hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,0,0,0.3)]'
           : 'opacity-50'
-      } ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+      } ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-[30px]'}`}
       style={{
         ...getScrollRevealStyle({ direction: 'up', delay: index * 80 }),
         borderColor: achievement.unlocked ? rarity.borderColor : 'var(--border-default)',
@@ -47,12 +47,8 @@ function AchievementCard({ achievement, index }: { achievement: Achievement; ind
     >
       <div className="p-5">
         <div className="flex items-start justify-between mb-3">
-          <span
-            className={`text-3xl sm:text-4xl ${
-              achievement.unlocked ? 'emoji-float' : 'grayscale blur-[1px]'
-            }`}
-          >
-            {achievement.unlocked ? <IconComp className="text-3xl sm:text-4xl" size={32} /> : <LockIcon className="text-3xl sm:text-4xl" size={32} />}
+          <span className={achievement.unlocked ? 'emoji-float' : 'grayscale blur-[1px]'}>
+            {achievement.unlocked ? <IconComp size={32} /> : <LockIcon size={32} />}
           </span>
           <span
             className="px-2 py-0.5 text-[10px] font-mono rounded border"
@@ -84,7 +80,7 @@ export default function AchievementsPage() {
   const { ref: progressRef, isVisible: progressVisible } = useScrollReveal<HTMLDivElement>();
   const { unlockedAchievements, loaded } = useBugStore();
 
-  // 将 unlockedAchievements 中的 id 与 MOCK_ACHIEVEMENTS 匹配，动态设置 unlocked 状态
+  // 始终使用 MOCK 数据，加载后用真实解锁覆盖
   const achievements = loaded
     ? MOCK_ACHIEVEMENTS.map(a => {
         const unlock = unlockedAchievements.find(u => u.id === a.id);
@@ -101,10 +97,9 @@ export default function AchievementsPage() {
   const totalCount = achievements.length;
   const progress = Math.round((unlockedCount / totalCount) * 100);
 
-  // Build progress bar text: ████████░░ 8/10
   const filledBlocks = Math.round((unlockedCount / totalCount) * 10);
   const emptyBlocks = 10 - filledBlocks;
-  const progressText = '█'.repeat(filledBlocks) + '░'.repeat(emptyBlocks);
+  const progressText = '\u2588'.repeat(filledBlocks) + '\u2591'.repeat(emptyBlocks);
 
   return (
     <div className="min-h-screen pt-20 pb-16 px-4">
@@ -112,7 +107,7 @@ export default function AchievementsPage() {
         {/* Page Header */}
         <div
           ref={headerRef}
-          className={`mb-8 ${headerVisible ? 'opacity-100' : 'opacity-0'}`}
+          className={`mb-8 transition-all duration-600 ${headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-[30px]'}`}
           style={getScrollRevealStyle({ direction: 'up' })}
         >
           <div className="flex items-center gap-3 mb-2">
@@ -129,12 +124,12 @@ export default function AchievementsPage() {
         {/* Progress */}
         <div
           ref={progressRef}
-          className={`rounded-xl border border-[var(--border-default)] bg-[var(--bg-secondary)] p-5 mb-8 ${progressVisible ? 'opacity-100' : 'opacity-0'}`}
+          className={`rounded-xl border border-[var(--border-default)] bg-[var(--bg-secondary)] p-5 mb-8 transition-all duration-600 ${progressVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-[30px]'}`}
           style={getScrollRevealStyle({ direction: 'up', delay: 100 })}
         >
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3">
-              <TrophyIcon className="text-2xl" size={24} />
+              <TrophyIcon size={24} />
               <div>
                 <div className="text-sm font-bold text-[var(--text-primary)]">
                   解锁进度
@@ -174,7 +169,7 @@ export default function AchievementsPage() {
           ))}
         </div>
 
-        {/* Achievement Grid - 2 cols on mobile */}
+        {/* Achievement Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredAchievements.map((achievement, i) => (
             <AchievementCard key={achievement.id} achievement={achievement} index={i} />
@@ -183,7 +178,7 @@ export default function AchievementsPage() {
 
         {filteredAchievements.length === 0 && (
           <div className="text-center py-12">
-            <MedalIcon className="text-4xl" size={40} />
+            <MedalIcon className="mx-auto mb-3 text-[var(--text-tertiary)]" size={40} />
             <p className="text-[var(--text-secondary)]">该分类下暂无成就</p>
           </div>
         )}

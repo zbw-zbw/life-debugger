@@ -22,11 +22,12 @@ function ConceptSection() {
       <div className="max-w-6xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left - Text */}
-          <div ref={titleRef} style={getScrollRevealStyle({ direction: 'up' })}>
-            <div
-              className="flex items-center gap-3 mb-8"
-              style={getScrollRevealStyle({ direction: 'up', delay: 100 })}
-            >
+          <div
+            ref={titleRef}
+            className={`transition-all duration-600 ${titleVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-[30px]'}`}
+            style={getScrollRevealStyle({ direction: 'up' })}
+          >
+            <div className="flex items-center gap-3 mb-8">
               <div className="w-1 h-8 bg-[var(--green)] rounded-full" />
               <h2 className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)]">
                 为什么生活烦恼 = Bug
@@ -34,10 +35,7 @@ function ConceptSection() {
             </div>
             <div className="space-y-5">
               {concepts.map((item, i) => (
-                <div
-                  key={i}
-                  style={getScrollRevealStyle({ direction: 'up', delay: 200 + i * 100 })}
-                >
+                <div key={i}>
                   <div className="font-mono text-sm text-[var(--text-tertiary)] mb-1">
                     // {item.text}
                   </div>
@@ -50,7 +48,11 @@ function ConceptSection() {
           </div>
 
           {/* Right - Demo Card */}
-          <div ref={cardRef} style={getScrollRevealStyle({ direction: 'right', delay: 200 })}>
+          <div
+            ref={cardRef}
+            className={`transition-all duration-600 ${cardVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-[30px]'}`}
+            style={getScrollRevealStyle({ direction: 'right', delay: 200 })}
+          >
             <DemoBugReport />
           </div>
         </div>
@@ -64,7 +66,11 @@ function CTASection() {
 
   return (
     <section className="py-16 sm:py-20 px-4">
-      <div ref={ref} style={getScrollRevealStyle({ direction: 'up' })}>
+      <div
+        ref={ref}
+        className={`transition-all duration-600 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-[30px]'}`}
+        style={getScrollRevealStyle({ direction: 'up' })}
+      >
         <div className="max-w-3xl mx-auto text-center">
           <div className="rounded-xl border border-[var(--border-default)] bg-[var(--bg-secondary)] p-6 sm:p-8">
             <div className="font-mono text-sm text-[var(--text-secondary)] space-y-2 mb-8">

@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback } from 'react';
 import { BugReport } from '@/types/bug';
+import { generateBugReport } from '@/lib/mockGenerator';
 
 export type DiagnosticPhase = 'input' | 'analyzing' | 'result' | 'error';
 
@@ -153,15 +154,21 @@ export function useBugDiagnosis(): UseBugDiagnosisReturn {
           try {
             parsed = JSON.parse(jsonMatch[0]);
           } catch {
-            setErrorType('parse');
-            setError('AI 输出解析失败');
-            setPhase('error');
+            // JSON 解析失败，降级到 mock
+            console.warn('JSON parse failed, falling back to mock');
+            const mockReport = generateBugReport(lastDescriptionRef.current);
+            setBugReport(mockReport);
+            setIsDemoMode(true);
+            setPhase('result');
             return;
           }
         } else {
-          setErrorType('parse');
-          setError('AI 输出解析失败');
-          setPhase('error');
+          // 无法提取 JSON，降级到 mock
+          console.warn('No JSON found in response, falling back to mock');
+          const mockReport = generateBugReport(lastDescriptionRef.current);
+          setBugReport(mockReport);
+          setIsDemoMode(true);
+          setPhase('result');
           return;
         }
       }
@@ -199,11 +206,15 @@ export function useBugDiagnosis(): UseBugDiagnosisReturn {
       if ((err as Error).name === 'AbortError') {
         setErrorType('timeout');
         setError('分析已取消或超时');
+        setPhase('error');
       } else {
-        setErrorType('network');
-        setError('诊断引擎连接失败，请检查网络');
+        // 网络错误或 API 失败时自动降级到 mock
+        console.warn('API call failed, falling back to mock:', err);
+        const mockReport = generateBugReport(lastDescriptionRef.current);
+        setBugReport(mockReport);
+        setIsDemoMode(true);
+        setPhase('result');
       }
-      setPhase('error');
     } finally {
       abortRef.current = null;
     }

@@ -1,10 +1,11 @@
 'use client';
 
 import { useScrollReveal, getScrollRevealStyle } from '@/hooks/useScrollReveal';
+import { SearchIcon, WrenchIcon, GlobeIcon, TrophyIcon } from '@/components/ui/Icon';
 
 interface Feature {
   number: string;
-  icon: string;
+  icon: React.FC<{ className?: string; size?: number }>;
   title: string;
   description: string;
   tags: string[];
@@ -14,7 +15,7 @@ interface Feature {
 const features: Feature[] = [
   {
     number: '01',
-    icon: '🔍',
+    icon: SearchIcon,
     title: 'Bug 诊断',
     description: '用自然语言描述你的烦恼，AI 自动生成结构化 Bug Report',
     tags: ['核心功能', 'AI 驱动'],
@@ -22,7 +23,7 @@ const features: Feature[] = [
   },
   {
     number: '02',
-    icon: '🔧',
+    icon: WrenchIcon,
     title: '修复追踪',
     description: '选择修复方案，每日签到记录进度，数据可视化追踪',
     tags: ['进度管理', '习惯养成'],
@@ -30,7 +31,7 @@ const features: Feature[] = [
   },
   {
     number: '03',
-    icon: '🌐',
+    icon: GlobeIcon,
     title: 'Bug 图鉴',
     description: '浏览社区热门人生 Bug，"我也有这个Bug"一键共鸣',
     tags: ['社区', '共鸣'],
@@ -38,7 +39,7 @@ const features: Feature[] = [
   },
   {
     number: '04',
-    icon: '🏆',
+    icon: TrophyIcon,
     title: '成就系统',
     description: '修复 Bug 解锁程序员风格成就，收集你的人生 Patch 徽章',
     tags: ['游戏化', '激励'],
@@ -52,8 +53,8 @@ function FeatureCard({ feature, index }: { feature: Feature; index: number }) {
   return (
     <div
       ref={ref}
-      className={`relative p-5 sm:p-6 rounded-xl border border-[var(--border-default)] bg-[var(--bg-secondary)] card-hover group overflow-hidden ${
-        isVisible ? 'opacity-100' : 'opacity-0'
+      className={`relative p-5 sm:p-6 rounded-xl border border-[var(--border-default)] bg-[var(--bg-secondary)] card-hover group overflow-hidden transition-all duration-600 ${
+        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-[30px]'
       }`}
       style={getScrollRevealStyle({ direction: 'up', delay: index * 100 })}
     >
@@ -65,7 +66,7 @@ function FeatureCard({ feature, index }: { feature: Feature; index: number }) {
           <span className="font-mono text-4xl font-bold text-[var(--text-tertiary)] opacity-30">
             {feature.number}
           </span>
-          <span className="text-2xl">{feature.icon}</span>
+          <feature.icon className="text-2xl" size={24} />
         </div>
         <h3 className="text-lg font-bold text-[var(--text-primary)] mb-2">
           {feature.title}
@@ -96,7 +97,7 @@ export default function FeatureCards() {
       <div className="max-w-6xl mx-auto">
         <div
           ref={titleRef}
-          className="flex items-center gap-3 mb-10"
+          className={`flex items-center gap-3 mb-10 transition-all duration-600 ${titleVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-[30px]'}`}
           style={getScrollRevealStyle({ direction: 'up' })}
         >
           <div className="w-1 h-8 bg-[var(--green)] rounded-full" />

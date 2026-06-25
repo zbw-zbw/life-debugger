@@ -8,23 +8,27 @@ import SeverityBadge from '@/components/ui/SeverityBadge';
 import { useScrollReveal, getScrollRevealStyle } from '@/hooks/useScrollReveal';
 import { useBugStore } from '@/hooks/useBugStore';
 import { ClipboardIcon } from '@/components/ui/Icon';
+import { AlertIcon, WrenchIcon, CheckIcon } from '@/components/ui/Icon';
 
 type FilterStatus = 'ALL' | 'OPEN' | 'FIXING' | 'RESOLVED';
 
-const STATUS_CONFIG = {
-  OPEN: { label: 'OPEN', color: 'var(--yellow)', icon: '⚠️', bgColor: 'rgba(227,179,65,0.1)' },
-  FIXING: { label: 'FIXING', color: 'var(--blue)', icon: '🔧', bgColor: 'rgba(88,166,255,0.1)' },
-  RESOLVED: { label: 'RESOLVED', color: 'var(--green)', icon: '✓', bgColor: 'rgba(57,211,83,0.1)' },
+const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.FC<{ className?: string; size?: number }>; bgColor: string }> = {
+  OPEN: { label: 'OPEN', color: 'var(--yellow)', icon: AlertIcon, bgColor: 'rgba(227,179,65,0.1)' },
+  FIXING: { label: 'FIXING', color: 'var(--blue)', icon: WrenchIcon, bgColor: 'rgba(88,166,255,0.1)' },
+  RESOLVED: { label: 'RESOLVED', color: 'var(--green)', icon: CheckIcon, bgColor: 'rgba(57,211,83,0.1)' },
 };
 
 function BugListItem({ bug, index, onDelete, isDemo }: { bug: BugReport; index: number; onDelete?: (id: string) => void; isDemo?: boolean }) {
   const { ref, isVisible } = useScrollReveal<HTMLDivElement>();
-  const status = STATUS_CONFIG[bug.status];
+  const status = STATUS_CONFIG[bug.status] || STATUS_CONFIG.OPEN;
+  const StatusIcon = status.icon;
 
   return (
     <div
       ref={ref}
-      className={`rounded-xl border border-[var(--border-default)] bg-[var(--bg-secondary)] overflow-hidden card-hover ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+      className={`rounded-xl border border-[var(--border-default)] bg-[var(--bg-secondary)] overflow-hidden card-hover transition-all duration-600 ${
+        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-[30px]'
+      }`}
       style={getScrollRevealStyle({ direction: 'up', delay: index * 80 })}
     >
       <div className="p-4 sm:p-5">
@@ -40,12 +44,12 @@ function BugListItem({ bug, index, onDelete, isDemo }: { bug: BugReport; index: 
                 className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-mono"
                 style={{ color: status.color, backgroundColor: status.bgColor }}
               >
-                <span>{status.icon}</span>
+                <StatusIcon className="text-xs" size={12} />
                 <span>{status.label}</span>
               </span>
-              <span>·</span>
+              <span className="text-[var(--text-tertiary)]">·</span>
               <span>已触发 {bug.triggerCount} 次</span>
-              <span>·</span>
+              <span className="text-[var(--text-tertiary)]">·</span>
               <span>{bug.createdAt}</span>
             </div>
           </div>
@@ -101,7 +105,9 @@ function StatCard({ label, value, color, index }: { label: string; value: number
   return (
     <div
       ref={ref}
-      className={`rounded-xl border border-[var(--border-default)] bg-[var(--bg-secondary)] p-4 text-center ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+      className={`rounded-xl border border-[var(--border-default)] bg-[var(--bg-secondary)] p-4 text-center transition-all duration-600 ${
+        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-[30px]'
+      }`}
       style={getScrollRevealStyle({ direction: 'up', delay: index * 80 })}
     >
       <div className="text-2xl font-bold" style={{ color }}>{value}</div>
@@ -113,11 +119,25 @@ function StatCard({ label, value, color, index }: { label: string; value: number
 export default function HistoryPage() {
   const [filter, setFilter] = useState<FilterStatus>('ALL');
   const { ref: headerRef, isVisible: headerVisible } = useScrollReveal<HTMLDivElement>();
-  const { bugs, loaded, deleteBug, stats } = useBugStore();
+  const { bugs, loaded, deleteBug } = useBugStore();
 
-  // 合并：真实数据在前，如果真实数据为空则显示 mock 示例
-  const displayBugs = loaded ? (bugs.length > 0 ? bugs : MOCK_HISTORY) : MOCK_HISTORY;
-  const isShowingDemo = loaded && bugs.length === 0;
+  // 始终至少显示 mock 数据
+  const displayBugs = loaded && bugs.length > 0 ? bugs : MOCK_HISTORY;
+  const isShowingDemo = !loaded || bugs.length === 0;
+
+  // mock 数据的统计
+  const mockStats = {
+    total: MOCK_HISTORY.length,
+    open: MOCK_HISTORY.filter(b => b.status === 'OPEN').length,
+    fixing: MOCK_HISTORY.filter(b => b.status === 'FIXING').length,
+    resolved: MOCK_HISTORY.filter(b => b.status === 'RESOLVED').length,
+  };
+  const stats = loaded && bugs.length > 0 ? {
+    total: bugs.length,
+    open: bugs.filter(b => b.status === 'OPEN').length,
+    fixing: bugs.filter(b => b.status === 'FIXING').length,
+    resolved: bugs.filter(b => b.status === 'RESOLVED').length,
+  } : mockStats;
 
   const filteredBugs = filter === 'ALL'
     ? displayBugs
@@ -129,7 +149,7 @@ export default function HistoryPage() {
         {/* Page Header */}
         <div
           ref={headerRef}
-          className={`mb-8 ${headerVisible ? 'opacity-100' : 'opacity-0'}`}
+          className={`mb-8 transition-all duration-600 ${headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-[30px]'}`}
           style={getScrollRevealStyle({ direction: 'up' })}
         >
           <div className="flex items-center gap-3 mb-2">
@@ -182,7 +202,7 @@ export default function HistoryPage() {
           ))}
           {filteredBugs.length === 0 && (
             <div className="text-center py-12">
-              <ClipboardIcon className="text-4xl" size={40} />
+              <ClipboardIcon className="mx-auto mb-3 text-[var(--text-tertiary)]" size={40} />
               <p className="text-[var(--text-secondary)]">该状态下暂无 Bug 记录</p>
             </div>
           )}

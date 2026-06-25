@@ -15,7 +15,6 @@ export function useScrollReveal<T extends HTMLElement = HTMLDivElement>(options?
   const ref = useRef<T>(null);
   const [isVisible, setIsVisible] = useState(false);
 
-  // 解构出原始值，避免对象引用变化触发重建
   const threshold = options?.threshold ?? 0.1;
   const once = options?.once ?? true;
 
@@ -44,6 +43,7 @@ export function useScrollReveal<T extends HTMLElement = HTMLDivElement>(options?
   return { ref, isVisible };
 }
 
+// 获取可见时的过渡样式（从隐藏到显示）
 export function getScrollRevealStyle(options?: ScrollRevealOptions, index?: number) {
   const {
     delay = 0,
@@ -62,7 +62,6 @@ export function getScrollRevealStyle(options?: ScrollRevealOptions, index?: numb
   };
 
   return {
-    opacity: 0,
     transform: translateMap[direction],
     transition: `opacity ${duration}ms cubic-bezier(0.4, 0, 0.2, 1) ${delayMs}ms, transform ${duration}ms cubic-bezier(0.4, 0, 0.2, 1) ${delayMs}ms`,
   };
