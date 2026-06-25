@@ -33,7 +33,7 @@ export default function RootLayout({
     <html lang="zh-CN" className="h-full antialiased">
       <body className="min-h-full flex flex-col bg-[var(--bg-primary)] text-[var(--text-primary)]">
         <Header />
-        <main className="flex-1 animate-page-enter">{children}</main>
+        <main className="flex-1">{children}</main>
         <Footer />
       </body>
     </html>

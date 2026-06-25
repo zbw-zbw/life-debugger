@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { BugReport, Patch } from '@/types/bug';
 import { SEVERITY_MAP } from '@/lib/constants';
 import SeverityBadge from '@/components/ui/SeverityBadge';
+import { BugIcon, AlertIcon, WrenchIcon, CheckIcon, ClipboardIcon, SearchIcon, DiffDot } from '@/components/ui/Icon';
 
 interface BugReportCardProps {
   bug: BugReport;
@@ -20,9 +21,9 @@ const SEVERITY_SIDE_COLORS: Record<string, string> = {
 };
 
 const STATUS_CONFIG = {
-  OPEN: { label: 'OPEN', color: 'var(--yellow)', icon: '⚠️', bgColor: 'rgba(227,179,65,0.1)' },
-  FIXING: { label: 'FIXING', color: 'var(--blue)', icon: '🔧', bgColor: 'rgba(88,166,255,0.1)' },
-  RESOLVED: { label: 'RESOLVED', color: 'var(--green)', icon: '✓', bgColor: 'rgba(57,211,83,0.1)' },
+  OPEN: { label: 'OPEN', color: 'var(--yellow)', icon: <AlertIcon className="text-xs" />, bgColor: 'rgba(227,179,65,0.1)' },
+  FIXING: { label: 'FIXING', color: 'var(--blue)', icon: <WrenchIcon className="text-xs" />, bgColor: 'rgba(88,166,255,0.1)' },
+  RESOLVED: { label: 'RESOLVED', color: 'var(--green)', icon: <CheckIcon className="text-xs" />, bgColor: 'rgba(57,211,83,0.1)' },
 };
 
 export default function BugReportCard({ bug, interactive = true, className = '' }: BugReportCardProps) {
@@ -56,11 +57,11 @@ export default function BugReportCard({ bug, interactive = true, className = '' 
 
       {/* Header with gradient */}
       <div
-        className="flex items-center justify-between px-4 py-3 border-b border-[var(--border-default)]"
+        className="flex items-center justify-between px-4 py-3"
         style={{ background: 'linear-gradient(to bottom, var(--bg-elevated), transparent)' }}
       >
         <div className="flex items-center gap-2">
-          <span className="text-base">🐛</span>
+          <BugIcon className="text-base" />
           <span className="font-mono text-sm font-bold text-[var(--text-primary)]">Bug Report</span>
         </div>
         <div className="flex items-center gap-2">
@@ -71,7 +72,7 @@ export default function BugReportCard({ bug, interactive = true, className = '' 
               backgroundColor: currentStatus.bgColor,
             }}
           >
-            <span>{currentStatus.icon}</span>
+            {currentStatus.icon}
             <span>{currentStatus.label}</span>
           </span>
           <span className="font-mono text-sm text-[var(--text-tertiary)]">#{bug.id}</span>
@@ -102,12 +103,10 @@ export default function BugReportCard({ bug, interactive = true, className = '' 
           </div>
         </div>
 
-        <div className="h-px bg-[var(--border-default)]" />
-
         {/* Repro Steps */}
         <div>
           <h4 className="text-xs font-mono text-[var(--text-tertiary)] mb-2 uppercase tracking-wider">
-            📋 复现步骤
+            <ClipboardIcon className="text-xs inline-block mr-1" /> 复现步骤
           </h4>
           <ol className="space-y-2">
             {bug.reproSteps.map((step, i) => (
@@ -121,13 +120,11 @@ export default function BugReportCard({ bug, interactive = true, className = '' 
           </ol>
         </div>
 
-        <div className="h-px bg-[var(--border-default)]" />
-
         {/* Root Causes */}
         <div>
           <div className="flex items-center gap-2 mb-2">
             <h4 className="text-xs font-mono text-[var(--text-tertiary)] uppercase tracking-wider">
-              🔬 根因分析
+              <SearchIcon className="text-xs inline-block mr-1" /> 根因分析
             </h4>
             <span className="ai-badge px-1.5 py-0.5 text-[10px] font-mono rounded border text-[var(--text-tertiary)]">
               AI Generated
@@ -143,12 +140,10 @@ export default function BugReportCard({ bug, interactive = true, className = '' 
           </ul>
         </div>
 
-        <div className="h-px bg-[var(--border-default)]" />
-
         {/* Patches */}
         <div>
           <h4 className="text-xs font-mono text-[var(--text-tertiary)] mb-2 uppercase tracking-wider">
-            🔧 修复方案
+            <WrenchIcon className="text-xs inline-block mr-1" /> 修复方案
           </h4>
           <div className="space-y-2">
             {bug.patches.map((patch) => (
@@ -171,7 +166,7 @@ export default function BugReportCard({ bug, interactive = true, className = '' 
               onClick={handleResolve}
               className="btn-primary w-full py-2.5 rounded-lg bg-[var(--green)] text-[var(--bg-primary)] font-mono font-bold text-sm transition-all duration-300 hover:shadow-[0_0_20px_rgba(57,211,83,0.3)]"
             >
-              ✓ 标记为已修复
+              <CheckIcon className="text-xs inline-block mr-1" /> 标记为已修复
             </button>
           </div>
         )}
@@ -179,14 +174,14 @@ export default function BugReportCard({ bug, interactive = true, className = '' 
         {interactive && status === 'RESOLVED' && (
           <div className="pt-2 text-center">
             <span className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--green-muted)]/20 text-[var(--green)] font-mono text-sm">
-              <span>✓</span>
+              <CheckIcon className="text-xs" />
               <span>Bug 已修复 — 继续保持！</span>
             </span>
           </div>
         )}
 
         {/* Footer */}
-        <div className="pt-2 border-t border-[var(--border-default)]">
+        <div className="pt-2">
           <div className="flex items-center justify-between text-xs font-mono text-[var(--text-tertiary)]">
             <span>预计修复周期：{bug.fixDays}天</span>
             <span>置信度：{bug.confidence}%</span>
@@ -212,10 +207,10 @@ function PatchItem({
 }) {
   const diffIcon =
     patch.difficulty === '低难度'
-      ? '🟢'
+      ? <DiffDot color="var(--green)" />
       : patch.difficulty === '中难度'
-      ? '🟡'
-      : '🟠';
+      ? <DiffDot color="var(--yellow)" />
+      : <DiffDot color="var(--red)" />;
 
   const diffColor =
     patch.difficulty === '低难度'
@@ -254,7 +249,7 @@ function PatchItem({
                   backgroundColor: diffBg,
                 }}
               >
-                <span>{diffIcon}</span>
+                {diffIcon}
                 {patch.difficulty}
               </span>
             </div>

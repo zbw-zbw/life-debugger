@@ -9,6 +9,7 @@ import { shareBugReport } from '@/components/bug/ShareCard';
 import Toast, { ToastData } from '@/components/ui/Toast';
 import ErrorState from '@/components/ui/ErrorState';
 import { useBugStore } from '@/hooks/useBugStore';
+import { AlertIcon } from '@/components/ui/Icon';
 
 export default function DebugPage() {
   const {
@@ -56,7 +57,7 @@ export default function DebugPage() {
       setToast({
         id: Date.now().toString(),
         type: 'success',
-        message: '分享文案已复制到剪贴板',
+        message: '链接已复制到剪贴板',
       });
     } else if (result === 'failed') {
       setToast({
@@ -170,12 +171,12 @@ export default function DebugPage() {
               <p className="text-xs font-mono text-[var(--text-tertiary)] mb-3">
                 {'>'} 常见 Bug 模板（点击快速填入）：
               </p>
-              <div className="flex gap-2 overflow-x-auto pb-2 template-scroll">
+              <div className="flex gap-2 overflow-x-auto pb-2 pl-0">
                 {QUICK_TEMPLATES.map((template) => (
                   <button
                     key={template.label}
                     onClick={() => handleSelectTemplate(template.text)}
-                    className="flex-shrink-0 px-3 py-2 rounded-lg border border-[var(--border-default)] bg-[var(--bg-secondary)] text-xs text-[var(--text-secondary)] font-mono transition-all duration-200 hover:border-[var(--green-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)]"
+                    className="flex-shrink-0 ml-0 first:ml-0 px-3 py-2 rounded-lg border border-[var(--border-default)] bg-[var(--bg-secondary)] text-xs text-[var(--text-secondary)] font-mono transition-all duration-200 hover:border-[var(--green-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)]"
                   >
                     {template.label}
                   </button>
@@ -204,12 +205,12 @@ export default function DebugPage() {
               </div>
             </div>
 
-            <BugReportCard bug={bugReport} interactive={true} />
+            <BugReportCard bug={bugReport} interactive={false} />
 
             {isDemoMode && (
               <div className="text-center">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[10px] font-mono text-[var(--text-tertiary)] border border-[var(--border-default)] bg-[var(--bg-tertiary)]">
-                  <span>⚠</span>
+                  <AlertIcon className="text-xs" />
                   <span>Demo 模式 - 使用预设诊断数据</span>
                 </span>
               </div>
@@ -225,7 +226,7 @@ export default function DebugPage() {
               </button>
               <button
                 onClick={handleSave}
-                className="btn-primary inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-[var(--border-default)] text-[var(--text-secondary)] font-mono text-sm transition-all duration-300 hover:border-[var(--blue)] hover:text-[var(--blue)]"
+                className="btn-primary inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[var(--green)] text-[var(--bg-primary)] font-mono font-bold text-sm transition-all duration-300 hover:shadow-[0_0_20px_rgba(57,211,83,0.3)]"
               >
                 <span>$ save</span>
               </button>

@@ -152,7 +152,7 @@ export const MOCK_HISTORY: BugReport[] = [
 export const MOCK_ACHIEVEMENTS: Achievement[] = [
   {
     id: 'first-bug',
-    icon: '🐛',
+    icon: 'bug',
     title: '初识Bug',
     description: '完成第一次Bug诊断',
     category: '诊断',
@@ -162,7 +162,7 @@ export const MOCK_ACHIEVEMENTS: Achievement[] = [
   },
   {
     id: 'debugger',
-    icon: '🔍',
+    icon: 'search',
     title: '调试新手',
     description: '累计诊断3个Bug',
     category: '诊断',
@@ -172,7 +172,7 @@ export const MOCK_ACHIEVEMENTS: Achievement[] = [
   },
   {
     id: 'senior-debugger',
-    icon: '🕵️',
+    icon: 'spy',
     title: '资深调试员',
     description: '累计诊断10个Bug',
     category: '诊断',
@@ -181,7 +181,7 @@ export const MOCK_ACHIEVEMENTS: Achievement[] = [
   },
   {
     id: 'first-patch',
-    icon: '🔧',
+    icon: 'wrench',
     title: '首次修复',
     description: '应用第一个Patch',
     category: '修复',
@@ -191,7 +191,7 @@ export const MOCK_ACHIEVEMENTS: Achievement[] = [
   },
   {
     id: 'patch-master',
-    icon: '🛠️',
+    icon: 'tools',
     title: 'Patch 大师',
     description: '累计应用10个Patch',
     category: '修复',
@@ -200,7 +200,7 @@ export const MOCK_ACHIEVEMENTS: Achievement[] = [
   },
   {
     id: 'bug-hunter',
-    icon: '🎯',
+    icon: 'target',
     title: 'Bug 猎人',
     description: '修复一个P1级别的严重Bug',
     category: '修复',
@@ -209,7 +209,7 @@ export const MOCK_ACHIEVEMENTS: Achievement[] = [
   },
   {
     id: 'night-owl',
-    icon: '🦉',
+    icon: 'moon',
     title: '夜猫子克星',
     description: '成功修复睡眠相关Bug',
     category: '特殊',
@@ -219,7 +219,7 @@ export const MOCK_ACHIEVEMENTS: Achievement[] = [
   },
   {
     id: 'sugar-free',
-    icon: '🥤',
+    icon: 'cup',
     title: '戒糖先锋',
     description: '成功控制糖分摄入Bug',
     category: '特殊',
@@ -229,7 +229,7 @@ export const MOCK_ACHIEVEMENTS: Achievement[] = [
   },
   {
     id: 'marathon',
-    icon: '🏃',
+    icon: 'running',
     title: '21天马拉松',
     description: '连续21天记录修复进度',
     category: '特殊',
@@ -238,7 +238,7 @@ export const MOCK_ACHIEVEMENTS: Achievement[] = [
   },
   {
     id: 'legend',
-    icon: '👑',
+    icon: 'crown',
     title: '人生Debug大师',
     description: '修复所有已诊断的Bug',
     category: '特殊',

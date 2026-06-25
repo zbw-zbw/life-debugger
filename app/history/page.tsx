@@ -7,6 +7,7 @@ import { BugReport } from '@/types/bug';
 import SeverityBadge from '@/components/ui/SeverityBadge';
 import { useScrollReveal, getScrollRevealStyle } from '@/hooks/useScrollReveal';
 import { useBugStore } from '@/hooks/useBugStore';
+import { ClipboardIcon } from '@/components/ui/Icon';
 
 type FilterStatus = 'ALL' | 'OPEN' | 'FIXING' | 'RESOLVED';
 
@@ -63,7 +64,7 @@ function BugListItem({ bug, index, onDelete, isDemo }: { bug: BugReport; index: 
           </div>
         </div>
 
-        <div className="mt-4 pt-3 border-t border-[var(--border-default)] flex items-center justify-between">
+        <div className="mt-4 pt-3 flex items-center justify-between">
           <div className="flex items-center gap-4 text-xs font-mono text-[var(--text-tertiary)]">
             <span>预计{bug.fixDays}天修复</span>
             <span>置信度 {bug.confidence}%</span>
@@ -123,7 +124,7 @@ export default function HistoryPage() {
     : displayBugs.filter(bug => bug.status === filter);
 
   return (
-    <div className="min-h-screen pt-24 pb-16 px-4">
+    <div className="min-h-screen pt-20 pb-16 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Page Header */}
         <div
@@ -181,7 +182,7 @@ export default function HistoryPage() {
           ))}
           {filteredBugs.length === 0 && (
             <div className="text-center py-12">
-              <div className="font-mono text-4xl mb-3">📝</div>
+              <ClipboardIcon className="text-4xl" size={40} />
               <p className="text-[var(--text-secondary)]">该状态下暂无 Bug 记录</p>
             </div>
           )}

@@ -5,12 +5,31 @@ import { MOCK_ACHIEVEMENTS, RARITY_CONFIG } from '@/lib/mockData';
 import { Achievement } from '@/lib/mockData';
 import { useScrollReveal, getScrollRevealStyle } from '@/hooks/useScrollReveal';
 import { useBugStore } from '@/hooks/useBugStore';
+import {
+  BugIcon, SearchIcon, SpyIcon, WrenchIcon, ToolsIcon,
+  TargetIcon, MoonIcon, CupIcon, RunningIcon, CrownIcon,
+  LockIcon, TrophyIcon, MedalIcon,
+} from '@/components/ui/Icon';
+
+const iconMap: Record<string, React.FC<{ className?: string; size?: number }>> = {
+  bug: BugIcon,
+  search: SearchIcon,
+  spy: SpyIcon,
+  wrench: WrenchIcon,
+  tools: ToolsIcon,
+  target: TargetIcon,
+  moon: MoonIcon,
+  cup: CupIcon,
+  running: RunningIcon,
+  crown: CrownIcon,
+};
 
 type FilterCategory = 'ALL' | '诊断' | '修复' | '特殊';
 
 function AchievementCard({ achievement, index }: { achievement: Achievement; index: number }) {
   const { ref, isVisible } = useScrollReveal<HTMLDivElement>();
   const rarity = RARITY_CONFIG[achievement.rarity];
+  const IconComp = iconMap[achievement.icon] || BugIcon;
 
   return (
     <div
@@ -33,7 +52,7 @@ function AchievementCard({ achievement, index }: { achievement: Achievement; ind
               achievement.unlocked ? 'emoji-float' : 'grayscale blur-[1px]'
             }`}
           >
-            {achievement.unlocked ? achievement.icon : '🔒'}
+            {achievement.unlocked ? <IconComp className="text-3xl sm:text-4xl" size={32} /> : <LockIcon className="text-3xl sm:text-4xl" size={32} />}
           </span>
           <span
             className="px-2 py-0.5 text-[10px] font-mono rounded border"
@@ -66,14 +85,13 @@ export default function AchievementsPage() {
   const { unlockedAchievements, loaded } = useBugStore();
 
   // 将 unlockedAchievements 中的 id 与 MOCK_ACHIEVEMENTS 匹配，动态设置 unlocked 状态
-  const achievements = MOCK_ACHIEVEMENTS.map(a => {
-    const unlock = unlockedAchievements.find(u => u.id === a.id);
-    if (unlock) {
-      return { ...a, unlocked: true, unlockedAt: unlock.unlockedAt };
-    }
-    // 保留原始 mock 数据中已 unlocked 的状态（作为展示效果）
-    return a;
-  });
+  const achievements = loaded
+    ? MOCK_ACHIEVEMENTS.map(a => {
+        const unlock = unlockedAchievements.find(u => u.id === a.id);
+        if (unlock) return { ...a, unlocked: true, unlockedAt: unlock.unlockedAt };
+        return a;
+      })
+    : MOCK_ACHIEVEMENTS;
 
   const filteredAchievements = filter === 'ALL'
     ? achievements
@@ -89,7 +107,7 @@ export default function AchievementsPage() {
   const progressText = '█'.repeat(filledBlocks) + '░'.repeat(emptyBlocks);
 
   return (
-    <div className="min-h-screen pt-24 pb-16 px-4">
+    <div className="min-h-screen pt-20 pb-16 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Page Header */}
         <div
@@ -116,7 +134,7 @@ export default function AchievementsPage() {
         >
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3">
-              <span className="text-2xl">🏆</span>
+              <TrophyIcon className="text-2xl" size={24} />
               <div>
                 <div className="text-sm font-bold text-[var(--text-primary)]">
                   解锁进度
@@ -165,7 +183,7 @@ export default function AchievementsPage() {
 
         {filteredAchievements.length === 0 && (
           <div className="text-center py-12">
-            <div className="font-mono text-4xl mb-3">🏅</div>
+            <MedalIcon className="text-4xl" size={40} />
             <p className="text-[var(--text-secondary)]">该分类下暂无成就</p>
           </div>
         )}
