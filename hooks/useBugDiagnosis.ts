@@ -197,7 +197,7 @@ export function useBugDiagnosis(): UseBugDiagnosisReturn {
         ],
         fixDays: parsed.fixDays || 21,
         confidence: parsed.confidence || 70,
-        createdAt: new Date().toISOString(),
+        createdAt: new Date().toISOString().split('T')[0],
       };
 
       setBugReport(fullReport);

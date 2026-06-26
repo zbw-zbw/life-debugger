@@ -5,9 +5,8 @@ export interface Achievement {
   icon: string;
   title: string;
   description: string;
+  condition: string;
   category: '诊断' | '修复' | '特殊';
-  unlocked: boolean;
-  unlockedAt?: string;
   rarity: 'common' | 'rare' | 'epic' | 'legendary';
 }
 
@@ -155,9 +154,8 @@ export const MOCK_ACHIEVEMENTS: Achievement[] = [
     icon: 'bug',
     title: '初识Bug',
     description: '完成第一次Bug诊断',
+    condition: '诊断第1个Bug',
     category: '诊断',
-    unlocked: true,
-    unlockedAt: '2026-06-20',
     rarity: 'common',
   },
   {
@@ -165,9 +163,8 @@ export const MOCK_ACHIEVEMENTS: Achievement[] = [
     icon: 'search',
     title: '调试新手',
     description: '累计诊断3个Bug',
+    condition: '累计诊断3个Bug',
     category: '诊断',
-    unlocked: true,
-    unlockedAt: '2026-06-22',
     rarity: 'common',
   },
   {
@@ -175,8 +172,8 @@ export const MOCK_ACHIEVEMENTS: Achievement[] = [
     icon: 'spy',
     title: '资深调试员',
     description: '累计诊断10个Bug',
+    condition: '累计诊断10个Bug',
     category: '诊断',
-    unlocked: false,
     rarity: 'rare',
   },
   {
@@ -184,9 +181,8 @@ export const MOCK_ACHIEVEMENTS: Achievement[] = [
     icon: 'wrench',
     title: '首次修复',
     description: '应用第一个Patch',
+    condition: '选择第1个修复方案',
     category: '修复',
-    unlocked: true,
-    unlockedAt: '2026-06-21',
     rarity: 'common',
   },
   {
@@ -194,17 +190,17 @@ export const MOCK_ACHIEVEMENTS: Achievement[] = [
     icon: 'tools',
     title: 'Patch 大师',
     description: '累计应用10个Patch',
+    condition: '累计选择10个修复方案',
     category: '修复',
-    unlocked: false,
     rarity: 'rare',
   },
   {
     id: 'bug-hunter',
     icon: 'target',
     title: 'Bug 猎人',
-    description: '修复一个P1级别的严重Bug',
+    description: '修复一个P0或P1级别的严重Bug',
+    condition: '修复一个P0或P1级别的Bug',
     category: '修复',
-    unlocked: false,
     rarity: 'epic',
   },
   {
@@ -212,9 +208,8 @@ export const MOCK_ACHIEVEMENTS: Achievement[] = [
     icon: 'moon',
     title: '夜猫子克星',
     description: '成功修复睡眠相关Bug',
+    condition: '修复一个睡眠/熬夜/刷手机相关Bug',
     category: '特殊',
-    unlocked: true,
-    unlockedAt: '2026-06-25',
     rarity: 'rare',
   },
   {
@@ -222,18 +217,17 @@ export const MOCK_ACHIEVEMENTS: Achievement[] = [
     icon: 'cup',
     title: '戒糖先锋',
     description: '成功控制糖分摄入Bug',
+    condition: '修复一个饮食/糖分相关Bug',
     category: '特殊',
-    unlocked: true,
-    unlockedAt: '2026-06-15',
     rarity: 'rare',
   },
   {
     id: 'marathon',
     icon: 'running',
     title: '21天马拉松',
-    description: '连续21天记录修复进度',
+    description: '修复一个预计周期>=21天的Bug',
+    condition: '修复一个预计周期>=21天的Bug',
     category: '特殊',
-    unlocked: false,
     rarity: 'epic',
   },
   {
@@ -241,8 +235,8 @@ export const MOCK_ACHIEVEMENTS: Achievement[] = [
     icon: 'crown',
     title: '人生Debug大师',
     description: '修复所有已诊断的Bug',
+    condition: '诊断>=3个Bug且全部修复',
     category: '特殊',
-    unlocked: false,
     rarity: 'legendary',
   },
 ];

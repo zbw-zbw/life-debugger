@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { BugReport, Patch } from '@/types/bug';
 import { SEVERITY_MAP } from '@/lib/constants';
 import SeverityBadge from '@/components/ui/SeverityBadge';
@@ -10,6 +9,9 @@ interface BugReportCardProps {
   bug: BugReport;
   interactive?: boolean;
   className?: string;
+  selectedPatchId?: string | null;
+  onSelectPatch?: (patchId: string, patchName: string) => void;
+  onResolve?: () => void;
 }
 
 const SEVERITY_SIDE_COLORS: Record<string, string> = {
@@ -21,47 +23,40 @@ const SEVERITY_SIDE_COLORS: Record<string, string> = {
 };
 
 const STATUS_CONFIG = {
-  OPEN: { label: 'OPEN', color: 'var(--yellow)', icon: <AlertIcon className="text-xs" />, bgColor: 'rgba(227,179,65,0.1)' },
-  FIXING: { label: 'FIXING', color: 'var(--blue)', icon: <WrenchIcon className="text-xs" />, bgColor: 'rgba(88,166,255,0.1)' },
-  RESOLVED: { label: 'RESOLVED', color: 'var(--green)', icon: <CheckIcon className="text-xs" />, bgColor: 'rgba(57,211,83,0.1)' },
+  OPEN: { label: 'OPEN', color: 'var(--yellow)', icon: AlertIcon, bgColor: 'rgba(227,179,65,0.1)' },
+  FIXING: { label: 'FIXING', color: 'var(--blue)', icon: WrenchIcon, bgColor: 'rgba(88,166,255,0.1)' },
+  RESOLVED: { label: 'RESOLVED', color: 'var(--green)', icon: CheckIcon, bgColor: 'rgba(57,211,83,0.1)' },
 };
 
-export default function BugReportCard({ bug, interactive = true, className = '' }: BugReportCardProps) {
-  const [selectedPatch, setSelectedPatch] = useState<string | null>(null);
-  const [status, setStatus] = useState(bug.status);
-
-  const handleApplyPatch = (patchId: string) => {
-    if (!interactive) return;
-    setSelectedPatch(patchId);
-    setStatus('FIXING');
-  };
-
-  const handleResolve = () => {
-    if (!interactive) return;
-    setStatus('RESOLVED');
-  };
-
-  const currentStatus = STATUS_CONFIG[status];
+export default function BugReportCard({
+  bug,
+  interactive = true,
+  className = '',
+  selectedPatchId: externalSelectedPatchId,
+  onSelectPatch,
+  onResolve,
+}: BugReportCardProps) {
+  const currentStatus = STATUS_CONFIG[bug.status];
   const sideColor = SEVERITY_SIDE_COLORS[bug.severity] || 'var(--border-default)';
   const isHighSeverity = bug.severity === 'P0' || bug.severity === 'P1';
 
+  const StatusIcon = currentStatus.icon;
+
   return (
     <div
-      className={`relative rounded-xl border border-[var(--border-default)] bg-[var(--bg-secondary)] overflow-hidden animate-fade-in-up card-hover ${className}`}
+      className={`relative rounded-xl border border-[var(--border-default)] bg-[var(--bg-secondary)] overflow-hidden card-hover ${className}`}
     >
-      {/* Left severity color bar */}
       <div
         className="absolute left-0 top-0 bottom-0 w-1 rounded-l-xl"
         style={{ backgroundColor: sideColor }}
       />
 
-      {/* Header with gradient */}
       <div
         className="flex items-center justify-between px-4 py-3"
         style={{ background: 'linear-gradient(to bottom, var(--bg-elevated), transparent)' }}
       >
         <div className="flex items-center gap-2">
-          <BugIcon className="text-base" />
+          <BugIcon className="text-base" size={16} />
           <span className="font-mono text-sm font-bold text-[var(--text-primary)]">Bug Report</span>
         </div>
         <div className="flex items-center gap-2">
@@ -72,7 +67,7 @@ export default function BugReportCard({ bug, interactive = true, className = '' 
               backgroundColor: currentStatus.bgColor,
             }}
           >
-            {currentStatus.icon}
+            <StatusIcon className="text-xs" size={12} />
             <span>{currentStatus.label}</span>
           </span>
           <span className="font-mono text-sm text-[var(--text-tertiary)]">#{bug.id}</span>
@@ -80,12 +75,11 @@ export default function BugReportCard({ bug, interactive = true, className = '' 
       </div>
 
       <div className="p-4 sm:p-5 space-y-4">
-        {/* Info */}
         <div className="space-y-3">
           <h3 className="text-lg font-bold text-[var(--text-primary)]">{bug.title}</h3>
           <div className="flex flex-wrap items-center gap-3">
             <SeverityBadge severity={bug.severity} />
-            {status === 'OPEN' && (
+            {bug.status === 'OPEN' && (
               <span className="text-sm text-[var(--text-secondary)]">
                 已触发 {bug.triggerCount} 次
               </span>
@@ -103,10 +97,10 @@ export default function BugReportCard({ bug, interactive = true, className = '' 
           </div>
         </div>
 
-        {/* Repro Steps */}
         <div>
-          <h4 className="text-xs font-mono text-[var(--text-tertiary)] mb-2 uppercase tracking-wider">
-            <ClipboardIcon className="text-xs inline-block mr-1" /> 复现步骤
+          <h4 className="flex items-center gap-1.5 text-xs font-mono text-[var(--text-tertiary)] mb-2 uppercase tracking-wider">
+            <ClipboardIcon className="text-xs" size={12} />
+            复现步骤
           </h4>
           <ol className="space-y-2">
             {bug.reproSteps.map((step, i) => (
@@ -120,11 +114,11 @@ export default function BugReportCard({ bug, interactive = true, className = '' 
           </ol>
         </div>
 
-        {/* Root Causes */}
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <h4 className="text-xs font-mono text-[var(--text-tertiary)] uppercase tracking-wider">
-              <SearchIcon className="text-xs inline-block mr-1" /> 根因分析
+            <h4 className="flex items-center gap-1.5 text-xs font-mono text-[var(--text-tertiary)] uppercase tracking-wider">
+              <SearchIcon className="text-xs" size={12} />
+              根因分析
             </h4>
             <span className="ai-badge px-1.5 py-0.5 text-[10px] font-mono rounded border text-[var(--text-tertiary)]">
               AI Generated
@@ -140,47 +134,48 @@ export default function BugReportCard({ bug, interactive = true, className = '' 
           </ul>
         </div>
 
-        {/* Patches */}
         <div>
-          <h4 className="text-xs font-mono text-[var(--text-tertiary)] mb-2 uppercase tracking-wider">
-            <WrenchIcon className="text-xs inline-block mr-1" /> 修复方案
+          <h4 className="flex items-center gap-1.5 text-xs font-mono text-[var(--text-tertiary)] mb-2 uppercase tracking-wider">
+            <WrenchIcon className="text-xs" size={12} />
+            修复方案
           </h4>
           <div className="space-y-2">
             {bug.patches.map((patch) => (
               <PatchItem
                 key={patch.id}
                 patch={patch}
-                isSelected={selectedPatch === patch.id}
-                isResolved={status === 'RESOLVED'}
+                isSelected={externalSelectedPatchId === patch.id}
+                isResolved={bug.status === 'RESOLVED'}
                 isInteractive={interactive}
-                onSelect={() => handleApplyPatch(patch.id)}
+                onSelect={() => onSelectPatch?.(patch.id, patch.name)}
               />
             ))}
           </div>
         </div>
 
-        {/* Action Buttons */}
-        {interactive && status === 'FIXING' && (
+        {interactive && bug.status === 'FIXING' && (
           <div className="pt-2">
             <button
-              onClick={handleResolve}
+              onClick={onResolve}
               className="btn-primary w-full py-2.5 rounded-lg bg-[var(--green)] text-[var(--bg-primary)] font-mono font-bold text-sm transition-all duration-300 hover:shadow-[0_0_20px_rgba(57,211,83,0.3)]"
             >
-              <CheckIcon className="text-xs inline-block mr-1" /> 标记为已修复
+              <span className="inline-flex items-center gap-1.5">
+                <CheckIcon className="text-sm" size={14} />
+                标记为已修复
+              </span>
             </button>
           </div>
         )}
 
-        {interactive && status === 'RESOLVED' && (
+        {interactive && bug.status === 'RESOLVED' && (
           <div className="pt-2 text-center">
             <span className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--green-muted)]/20 text-[var(--green)] font-mono text-sm">
-              <CheckIcon className="text-xs" />
-              <span>Bug 已修复 — 继续保持！</span>
+              <CheckIcon className="text-sm" size={14} />
+              Bug 已修复 — 继续保持！
             </span>
           </div>
         )}
 
-        {/* Footer */}
         <div className="pt-2">
           <div className="flex items-center justify-between text-xs font-mono text-[var(--text-tertiary)]">
             <span>预计修复周期：{bug.fixDays}天</span>
@@ -205,13 +200,6 @@ function PatchItem({
   isInteractive: boolean;
   onSelect: () => void;
 }) {
-  const diffIcon =
-    patch.difficulty === '低难度'
-      ? <DiffDot color="var(--green)" />
-      : patch.difficulty === '中难度'
-      ? <DiffDot color="var(--yellow)" />
-      : <DiffDot color="var(--red)" />;
-
   const diffColor =
     patch.difficulty === '低难度'
       ? 'var(--green)'
@@ -249,7 +237,7 @@ function PatchItem({
                   backgroundColor: diffBg,
                 }}
               >
-                {diffIcon}
+                <DiffDot color={diffColor} size={8} />
                 {patch.difficulty}
               </span>
             </div>

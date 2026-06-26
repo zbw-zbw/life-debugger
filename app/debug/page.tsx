@@ -25,6 +25,7 @@ export default function DebugPage() {
 
   const [input, setInput] = useState('');
   const [toast, setToast] = useState<ToastData | null>(null);
+  const [saved, setSaved] = useState(false);
   const { saveBug } = useBugStore();
 
   const minLength = 10;
@@ -37,16 +38,18 @@ export default function DebugPage() {
 
   const handleReset = () => {
     setInput('');
+    setSaved(false);
     reset();
   };
 
   const handleSave = () => {
-    if (!bugReport) return;
+    if (!bugReport || saved) return;
     saveBug(bugReport, input);
+    setSaved(true);
     setToast({
       id: Date.now().toString(),
       type: 'success',
-      message: 'Bug Report 已保存到历史记录',
+      message: 'Bug Report 已保存，前往 ~/history 查看',
     });
   };
 
@@ -226,9 +229,14 @@ export default function DebugPage() {
               </button>
               <button
                 onClick={handleSave}
-                className="btn-primary inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[var(--green)] text-[var(--bg-primary)] font-mono font-bold text-sm transition-all duration-300 hover:shadow-[0_0_20px_rgba(57,211,83,0.3)]"
+                disabled={saved}
+                className={`btn-primary inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-mono font-bold text-sm transition-all duration-300 ${
+                  saved
+                    ? 'border border-[var(--green)] text-[var(--green)] opacity-50 cursor-default'
+                    : 'bg-[var(--green)] text-[var(--bg-primary)] hover:shadow-[0_0_20px_rgba(57,211,83,0.3)]'
+                }`}
               >
-                <span>$ save</span>
+                <span>{saved ? '✓ saved' : '$ save'}</span>
               </button>
               <button
                 onClick={handleShare}

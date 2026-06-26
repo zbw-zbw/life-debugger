@@ -1,16 +1,15 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { BugReport } from '@/types/bug';
 
-// 存储的 Bug
 export interface StoredBug extends BugReport {
   userInput: string;
   selectedPatchId: string | null;
+  selectedPatchName: string | null;
   resolvedAt: string | null;
 }
 
-// 成就定义
 export interface UnlockedAchievement {
   id: string;
   unlockedAt: string;
@@ -42,50 +41,88 @@ function saveStore(data: BugStoreData) {
   }
 }
 
+function formatDate(date: Date): string {
+  return date.toISOString().split('T')[0];
+}
+
+function checkAchievements(data: BugStoreData): UnlockedAchievement[] {
+  const { bugs, unlockedAchievements } = data;
+  const newAchievements = [...unlockedAchievements];
+  const today = formatDate(new Date());
+
+  function tryUnlock(id: string) {
+    if (!newAchievements.find(a => a.id === id)) {
+      newAchievements.push({ id, unlockedAt: today });
+    }
+  }
+
+  const totalBugs = bugs.length;
+  const resolvedBugs = bugs.filter(b => b.status === 'RESOLVED');
+  const bugsWithPatch = bugs.filter(b => b.selectedPatchId !== null);
+
+  if (totalBugs >= 1) tryUnlock('first-bug');
+  if (totalBugs >= 3) tryUnlock('debugger');
+  if (totalBugs >= 10) tryUnlock('senior-debugger');
+  if (bugsWithPatch.length >= 1) tryUnlock('first-patch');
+  if (bugsWithPatch.length >= 10) tryUnlock('patch-master');
+  if (resolvedBugs.some(b => b.severity === 'P0' || b.severity === 'P1')) tryUnlock('bug-hunter');
+  if (resolvedBugs.some(b =>
+    b.title.includes('睡眠') || b.title.includes('熬夜') || b.title.includes('刷屏') || b.title.includes('刷手机') ||
+    b.impactAreas.some(a => a.includes('睡眠'))
+  )) tryUnlock('night-owl');
+  if (resolvedBugs.some(b =>
+    b.title.includes('饮食') || b.title.includes('糖') || b.title.includes('奶茶') || b.title.includes('外卖') ||
+    b.impactAreas.some(a => a.includes('饮食') || a.includes('健康'))
+  )) tryUnlock('sugar-free');
+  if (resolvedBugs.some(b => b.fixDays >= 21)) tryUnlock('marathon');
+  if (totalBugs >= 3 && totalBugs === resolvedBugs.length) tryUnlock('legend');
+
+  return newAchievements;
+}
+
 export function useBugStore() {
   const [data, setData] = useState<BugStoreData>({ bugs: [], unlockedAchievements: [] });
   const [loaded, setLoaded] = useState(false);
+  const [newlyUnlocked, setNewlyUnlocked] = useState<string[]>([]);
 
-  // 初始加载
   useEffect(() => {
-    setData(loadStore());
+    const stored = loadStore();
+    setData(stored);
     setLoaded(true);
   }, []);
 
-  // 数据变化时写入 localStorage
   useEffect(() => {
-    if (loaded) {
+    if (!loaded) return;
+    const updatedAchievements = checkAchievements(data);
+    const newOnes = updatedAchievements.filter(
+      a => !data.unlockedAchievements.find(ea => ea.id === a.id)
+    );
+    if (newOnes.length > 0) {
+      setNewlyUnlocked(newOnes.map(a => a.id));
+      const updated = { ...data, unlockedAchievements: updatedAchievements };
+      setData(updated);
+      saveStore(updated);
+    } else {
       saveStore(data);
     }
-  }, [data, loaded]);
+  }, [data.bugs, loaded]);
+
+  const clearNewlyUnlocked = useCallback(() => {
+    setNewlyUnlocked([]);
+  }, []);
 
   const saveBug = useCallback((bug: BugReport, userInput: string) => {
     setData(prev => {
-      // 去重：相同 id 不重复添加
       if (prev.bugs.some(b => b.id === bug.id)) return prev;
       const stored: StoredBug = {
         ...bug,
         userInput,
         selectedPatchId: null,
+        selectedPatchName: null,
         resolvedAt: null,
+        createdAt: formatDate(new Date()),
       };
-      const newBugs = [stored, ...prev.bugs];
-
-      // 检查成就：初识 Bug
-      const achievements = [...prev.unlockedAchievements];
-      if (!achievements.find(a => a.id === 'first-bug')) {
-        achievements.push({ id: 'first-bug', unlockedAt: new Date().toISOString().split('T')[0] });
-      }
-      // 调试新手：3个
-      if (newBugs.length >= 3 && !achievements.find(a => a.id === 'debugger')) {
-        achievements.push({ id: 'debugger', unlockedAt: new Date().toISOString().split('T')[0] });
-      }
-      // 资深调试员：10个
-      if (newBugs.length >= 10 && !achievements.find(a => a.id === 'senior-debugger')) {
-        achievements.push({ id: 'senior-debugger', unlockedAt: new Date().toISOString().split('T')[0] });
-      }
-
-      return { bugs: newBugs, unlockedAchievements: achievements };
+      return { ...prev, bugs: [stored, ...prev.bugs] };
     });
   }, []);
 
@@ -96,47 +133,50 @@ export function useBugStore() {
     }));
   }, []);
 
-  const selectPatch = useCallback((bugId: string, patchId: string) => {
-    setData(prev => {
-      const bugs = prev.bugs.map(b =>
-        b.id === bugId ? { ...b, selectedPatchId: patchId, status: 'FIXING' as const } : b
-      );
-      const achievements = [...prev.unlockedAchievements];
-      if (!achievements.find(a => a.id === 'first-patch')) {
-        achievements.push({ id: 'first-patch', unlockedAt: new Date().toISOString().split('T')[0] });
-      }
-      return { bugs, unlockedAchievements: achievements };
-    });
+  const selectPatch = useCallback((bugId: string, patchId: string, patchName: string) => {
+    setData(prev => ({
+      ...prev,
+      bugs: prev.bugs.map(b =>
+        b.id === bugId
+          ? { ...b, selectedPatchId: patchId, selectedPatchName: patchName, status: 'FIXING' as const }
+          : b
+      ),
+    }));
   }, []);
 
   const resolveBug = useCallback((bugId: string) => {
-    setData(prev => {
-      const bugs = prev.bugs.map(b =>
-        b.id === bugId ? { ...b, status: 'RESOLVED' as const, resolvedAt: new Date().toISOString().split('T')[0] } : b
-      );
-      const achievements = [...prev.unlockedAchievements];
-      if (!achievements.find(a => a.id === 'first-resolve')) {
-        achievements.push({ id: 'first-resolve', unlockedAt: new Date().toISOString().split('T')[0] });
-      }
-      return { bugs, unlockedAchievements: achievements };
-    });
+    setData(prev => ({
+      ...prev,
+      bugs: prev.bugs.map(b =>
+        b.id === bugId
+          ? { ...b, status: 'RESOLVED' as const, resolvedAt: formatDate(new Date()) }
+          : b
+      ),
+    }));
   }, []);
 
-  const stats = {
+  const getBugById = useCallback((bugId: string): StoredBug | undefined => {
+    return data.bugs.find(b => b.id === bugId);
+  }, [data.bugs]);
+
+  const stats = useMemo(() => ({
     total: data.bugs.length,
     open: data.bugs.filter(b => b.status === 'OPEN').length,
     fixing: data.bugs.filter(b => b.status === 'FIXING').length,
     resolved: data.bugs.filter(b => b.status === 'RESOLVED').length,
-  };
+  }), [data.bugs]);
 
   return {
     bugs: data.bugs,
     unlockedAchievements: data.unlockedAchievements,
+    newlyUnlocked,
+    clearNewlyUnlocked,
     stats,
     loaded,
     saveBug,
     deleteBug,
     selectPatch,
     resolveBug,
+    getBugById,
   };
 }

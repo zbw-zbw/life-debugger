@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { MOCK_ACHIEVEMENTS, RARITY_CONFIG } from '@/lib/mockData';
 import { Achievement } from '@/lib/mockData';
-import { useScrollReveal, getScrollRevealStyle } from '@/hooks/useScrollReveal';
 import { useBugStore } from '@/hooks/useBugStore';
 import {
   BugIcon, SearchIcon, SpyIcon, WrenchIcon, ToolsIcon,
@@ -26,28 +25,37 @@ const iconMap: Record<string, React.FC<{ className?: string; size?: number }>> =
 
 type FilterCategory = 'ALL' | '诊断' | '修复' | '特殊';
 
-function AchievementCard({ achievement, index }: { achievement: Achievement; index: number }) {
-  const { ref, isVisible } = useScrollReveal<HTMLDivElement>();
+function formatDisplayDate(dateStr: string): string {
+  if (!dateStr) return '';
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return dateStr;
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
+interface AchievementViewModel extends Achievement {
+  unlocked: boolean;
+  unlockedAt?: string;
+}
+
+function AchievementCard({ achievement }: { achievement: AchievementViewModel }) {
   const rarity = RARITY_CONFIG[achievement.rarity];
   const IconComp = iconMap[achievement.icon] || BugIcon;
 
   return (
     <div
-      ref={ref}
-      className={`relative rounded-xl border overflow-hidden transition-all duration-600 ${
+      className={`relative rounded-xl border overflow-hidden transition-all duration-300 hover:-translate-y-1 ${
         achievement.unlocked
-          ? 'hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,0,0,0.3)]'
-          : 'opacity-50'
-      } ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-[30px]'}`}
+          ? 'hover:shadow-[0_8px_30px_rgba(0,0,0,0.3)]'
+          : 'opacity-60'
+      }`}
       style={{
-        ...getScrollRevealStyle({ direction: 'up', delay: index * 80 }),
         borderColor: achievement.unlocked ? rarity.borderColor : 'var(--border-default)',
         backgroundColor: achievement.unlocked ? rarity.bgColor : 'var(--bg-secondary)',
       }}
     >
       <div className="p-5">
         <div className="flex items-start justify-between mb-3">
-          <span className={achievement.unlocked ? 'emoji-float' : 'grayscale blur-[1px]'}>
+          <span className={achievement.unlocked ? 'text-[var(--text-primary)]' : 'grayscale blur-[1px]'}>
             {achievement.unlocked ? <IconComp size={32} /> : <LockIcon size={32} />}
           </span>
           <span
@@ -61,12 +69,26 @@ function AchievementCard({ achievement, index }: { achievement: Achievement; ind
           </span>
         </div>
         <h3 className="text-base font-bold text-[var(--text-primary)] mb-1">{achievement.title}</h3>
-        <p className="text-xs text-[var(--text-secondary)] leading-relaxed">{achievement.description}</p>
-        {achievement.unlocked && achievement.unlockedAt && (
-          <div className="mt-3 pt-3 border-t border-[var(--border-default)]/50">
-            <span className="text-[10px] font-mono text-[var(--text-tertiary)]">
-              解锁于 {achievement.unlockedAt}
-            </span>
+        {achievement.unlocked ? (
+          <>
+            <p className="text-xs text-[var(--text-secondary)] leading-relaxed">{achievement.description}</p>
+            {achievement.unlockedAt && (
+              <div className="mt-3 pt-3 border-t border-[var(--border-default)]/50">
+                <span className="text-[10px] font-mono text-[var(--text-tertiary)]">
+                  解锁于 {formatDisplayDate(achievement.unlockedAt)}
+                </span>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="space-y-2">
+            <p className="text-xs text-[var(--text-tertiary)] leading-relaxed">
+              解锁条件：{achievement.condition}
+            </p>
+            <div className="flex items-center gap-1.5 text-[10px] font-mono text-[var(--text-tertiary)]">
+              <LockIcon size={10} />
+              <span>未解锁</span>
+            </div>
           </div>
         )}
       </div>
@@ -76,18 +98,16 @@ function AchievementCard({ achievement, index }: { achievement: Achievement; ind
 
 export default function AchievementsPage() {
   const [filter, setFilter] = useState<FilterCategory>('ALL');
-  const { ref: headerRef, isVisible: headerVisible } = useScrollReveal<HTMLDivElement>();
-  const { ref: progressRef, isVisible: progressVisible } = useScrollReveal<HTMLDivElement>();
   const { unlockedAchievements, loaded } = useBugStore();
 
-  // 始终使用 MOCK 数据，加载后用真实解锁覆盖
-  const achievements = loaded
-    ? MOCK_ACHIEVEMENTS.map(a => {
-        const unlock = unlockedAchievements.find(u => u.id === a.id);
-        if (unlock) return { ...a, unlocked: true, unlockedAt: unlock.unlockedAt };
-        return a;
-      })
-    : MOCK_ACHIEVEMENTS;
+  const achievements: AchievementViewModel[] = MOCK_ACHIEVEMENTS.map(a => {
+    const unlock = unlockedAchievements.find(u => u.id === a.id);
+    return {
+      ...a,
+      unlocked: !!unlock,
+      unlockedAt: unlock?.unlockedAt,
+    };
+  });
 
   const filteredAchievements = filter === 'ALL'
     ? achievements
@@ -105,11 +125,7 @@ export default function AchievementsPage() {
     <div className="min-h-screen pt-20 pb-16 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Page Header */}
-        <div
-          ref={headerRef}
-          className={`mb-8 transition-all duration-600 ${headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-[30px]'}`}
-          style={getScrollRevealStyle({ direction: 'up' })}
-        >
+        <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-1 h-6 bg-[var(--purple)] rounded-full" />
             <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)]">
@@ -122,11 +138,7 @@ export default function AchievementsPage() {
         </div>
 
         {/* Progress */}
-        <div
-          ref={progressRef}
-          className={`rounded-xl border border-[var(--border-default)] bg-[var(--bg-secondary)] p-5 mb-8 transition-all duration-600 ${progressVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-[30px]'}`}
-          style={getScrollRevealStyle({ direction: 'up', delay: 100 })}
-        >
+        <div className="rounded-xl border border-[var(--border-default)] bg-[var(--bg-secondary)] p-5 mb-8">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3">
               <TrophyIcon size={24} />
@@ -169,14 +181,23 @@ export default function AchievementsPage() {
           ))}
         </div>
 
-        {/* Achievement Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredAchievements.map((achievement, i) => (
-            <AchievementCard key={achievement.id} achievement={achievement} index={i} />
-          ))}
-        </div>
+        {/* Loading State */}
+        {!loaded && (
+          <div className="text-center py-12">
+            <div className="font-mono text-sm text-[var(--text-tertiary)]">加载中...</div>
+          </div>
+        )}
 
-        {filteredAchievements.length === 0 && (
+        {/* Achievement Grid */}
+        {loaded && (
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredAchievements.map((achievement) => (
+              <AchievementCard key={achievement.id} achievement={achievement} />
+            ))}
+          </div>
+        )}
+
+        {loaded && filteredAchievements.length === 0 && (
           <div className="text-center py-12">
             <MedalIcon className="mx-auto mb-3 text-[var(--text-tertiary)]" size={40} />
             <p className="text-[var(--text-secondary)]">该分类下暂无成就</p>

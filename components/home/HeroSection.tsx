@@ -76,13 +76,6 @@ export default function HeroSection() {
         }}
       />
 
-      {/* Top label */}
-      <div className="absolute top-20 left-4 sm:left-8">
-        <span className="font-mono text-xs text-[var(--text-tertiary)]">
-          // TRAE AI 创造力大赛 · 参赛作品
-        </span>
-      </div>
-
       {/* Main content */}
       <div className="relative flex flex-col items-center text-center max-w-4xl mx-auto">
         {/* Title */}
@@ -139,15 +132,6 @@ export default function HeroSection() {
         </div>
       </div>
 
-      {/* Scroll indicator */}
-      <div className="absolute bottom-8 flex flex-col items-center gap-2">
-        <div className="animate-float text-[var(--text-tertiary)] text-xl">
-          ↓
-        </div>
-        <span className="font-mono text-xs text-[var(--text-tertiary)]">
-          scroll to explore
-        </span>
-      </div>
     </section>
   );
 }
