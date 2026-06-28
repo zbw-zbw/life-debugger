@@ -37,7 +37,7 @@ function ConceptSection() {
               {concepts.map((item, i) => (
                 <div key={i}>
                   <div className="font-mono text-sm text-[var(--text-tertiary)] mb-1">
-                    // {item.text}
+                    {'// '}{item.text}
                   </div>
                   <p className="text-[var(--text-secondary)] pl-4">
                     {item.sub}

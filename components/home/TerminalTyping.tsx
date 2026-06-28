@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useEffect, useReducer } from 'react';
 
 interface TerminalLine {
   text: string;
@@ -14,16 +14,50 @@ interface TerminalTypingProps {
   lineDelay?: number;
 }
 
+interface State {
+  displayedLines: string[];
+  currentLineIndex: number;
+  currentCharIndex: number;
+  isComplete: boolean;
+}
+
+type Action =
+  | { type: 'NEXT_CHAR' }
+  | { type: 'NEXT_LINE'; fullText: string }
+  | { type: 'COMPLETE' };
+
+function reducer(state: State, action: Action): State {
+  switch (action.type) {
+    case 'NEXT_CHAR':
+      return { ...state, currentCharIndex: state.currentCharIndex + 1 };
+    case 'NEXT_LINE':
+      return {
+        ...state,
+        displayedLines: [...state.displayedLines, action.fullText],
+        currentLineIndex: state.currentLineIndex + 1,
+        currentCharIndex: 0,
+      };
+    case 'COMPLETE':
+      return { ...state, isComplete: true };
+    default:
+      return state;
+  }
+}
+
 export default function TerminalTyping({
   lines,
   onComplete,
   charDelay = 30,
   lineDelay = 500,
 }: TerminalTypingProps) {
-  const [displayedLines, setDisplayedLines] = useState<string[]>([]);
-  const [currentLineIndex, setCurrentLineIndex] = useState(0);
-  const [currentCharIndex, setCurrentCharIndex] = useState(0);
-  const [isComplete, setIsComplete] = useState(false);
+  const [state, dispatch] = useReducer(reducer, {
+    displayedLines: [],
+    currentLineIndex: 0,
+    currentCharIndex: 0,
+    isComplete: false,
+  });
+
+  const { displayedLines, currentLineIndex, currentCharIndex, isComplete } = state;
 
   const getLinePrefix = (line: TerminalLine) => {
     if (line.styles?.prefix) {
@@ -71,8 +105,7 @@ export default function TerminalTyping({
   useEffect(() => {
     if (currentLineIndex >= lines.length) {
       if (!isComplete) {
-        setIsComplete(true);
-        onComplete?.();
+        dispatch({ type: 'COMPLETE' });
       }
       return;
     }
@@ -82,18 +115,22 @@ export default function TerminalTyping({
 
     if (currentCharIndex < fullText.length) {
       const timer = setTimeout(() => {
-        setCurrentCharIndex(prev => prev + 1);
+        dispatch({ type: 'NEXT_CHAR' });
       }, charDelay);
       return () => clearTimeout(timer);
     } else {
       const timer = setTimeout(() => {
-        setDisplayedLines(prev => [...prev, fullText]);
-        setCurrentLineIndex(prev => prev + 1);
-        setCurrentCharIndex(0);
+        dispatch({ type: 'NEXT_LINE', fullText });
       }, lineDelay);
       return () => clearTimeout(timer);
     }
-  }, [currentLineIndex, currentCharIndex, lines, charDelay, lineDelay, isComplete, onComplete]);
+  }, [currentLineIndex, currentCharIndex, lines, charDelay, lineDelay, isComplete]);
+
+  useEffect(() => {
+    if (isComplete) {
+      onComplete?.();
+    }
+  }, [isComplete, onComplete]);
 
   return (
     <div className="font-mono text-xs sm:text-sm leading-relaxed space-y-1 overflow-x-auto">

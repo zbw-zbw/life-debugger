@@ -1,55 +1,22 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useBugStore } from '@/hooks/useBugStore';
 import { MOCK_ACHIEVEMENTS, RARITY_CONFIG } from '@/lib/mockData';
 import { TrophyIcon, CloseIcon } from '@/components/ui/Icon';
 
-interface QueuedAchievement {
-  id: string;
-  title: string;
-  description: string;
-  rarity: string;
-  icon: string;
-}
-
 export default function AchievementToast() {
-  const { newlyUnlocked, clearNewlyUnlocked } = useBugStore();
-  const [queue, setQueue] = useState<QueuedAchievement[]>([]);
-  const [current, setCurrent] = useState<QueuedAchievement | null>(null);
+  const { newlyUnlocked, shiftNewlyUnlocked } = useBugStore();
 
-  // When newlyUnlocked changes, enqueue achievements
-  useEffect(() => {
-    if (newlyUnlocked.length === 0) return;
-    const items = newlyUnlocked
-      .map(id => MOCK_ACHIEVEMENTS.find(a => a.id === id))
-      .filter((a): a is NonNullable<typeof a> => !!a)
-      .map(a => ({
-        id: a.id,
-        title: a.title,
-        description: a.description,
-        rarity: a.rarity,
-        icon: a.icon,
-      }));
-    if (items.length > 0) {
-      setQueue(prev => [...prev, ...items]);
-      clearNewlyUnlocked();
-    }
-  }, [newlyUnlocked, clearNewlyUnlocked]);
+  const currentId = newlyUnlocked[0] ?? null;
+  const current = currentId ? MOCK_ACHIEVEMENTS.find(a => a.id === currentId) : null;
 
-  // Process queue — show one at a time
-  useEffect(() => {
-    if (current || queue.length === 0) return;
-    setCurrent(queue[0]);
-    setQueue(prev => prev.slice(1));
-  }, [current, queue]);
-
-  // Auto dismiss after 5s
+  // Auto-advance queue after 5s via async callback, not synchronous setState
   useEffect(() => {
     if (!current) return;
-    const timer = setTimeout(() => setCurrent(null), 5000);
+    const timer = setTimeout(() => shiftNewlyUnlocked(), 5000);
     return () => clearTimeout(timer);
-  }, [current]);
+  }, [current, shiftNewlyUnlocked]);
 
   if (!current) return null;
 
@@ -103,8 +70,8 @@ export default function AchievementToast() {
 
         {/* Close */}
         <button
-          onClick={() => setCurrent(null)}
-          className="flex-shrink-0 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors"
+          onClick={() => shiftNewlyUnlocked()}
+          className="btn-primary flex-shrink-0 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors"
           aria-label="关闭"
         >
           <CloseIcon size={16} />

@@ -229,14 +229,10 @@ export function generateBugReport(input: string): BugReport {
     }
   }
 
-  // Random fallback
-  const keys = Object.keys(BUG_TEMPLATES);
-  const randomKey = keys[Math.floor(Math.random() * keys.length)];
-  const template = BUG_TEMPLATES[randomKey];
+  // Default fallback
   return {
-    ...template,
+    ...DEFAULT_REPORT,
     id: `LIFE-${String(Math.floor(Math.random() * 9999)).padStart(4, '0')}`,
-    createdAt: new Date().toISOString().split('T')[0],
   };
 }
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useBugDiagnosis } from '@/hooks/useBugDiagnosis';
 import { QUICK_TEMPLATES } from '@/lib/mockGenerator';
 import AnalysisProcess from '@/components/debug/AnalysisProcess';
@@ -9,6 +9,7 @@ import { shareBugReport } from '@/components/bug/ShareCard';
 import Toast, { ToastData } from '@/components/ui/Toast';
 import ErrorState from '@/components/ui/ErrorState';
 import { useBugStore } from '@/hooks/useBugStore';
+import { useToastId } from '@/hooks/useToastId';
 import { AlertIcon } from '@/components/ui/Icon';
 
 export default function DebugPage() {
@@ -27,6 +28,11 @@ export default function DebugPage() {
   const [toast, setToast] = useState<ToastData | null>(null);
   const [saved, setSaved] = useState(false);
   const { saveBug } = useBugStore();
+  const nextToastId = useToastId();
+
+  const showToast = useCallback((type: ToastData['type'], message: string) => {
+    setToast({ id: nextToastId(), type, message });
+  }, [nextToastId]);
 
   const minLength = 10;
   const isValid = input.trim().length >= minLength;
@@ -46,28 +52,18 @@ export default function DebugPage() {
     if (!bugReport || saved) return;
     saveBug(bugReport, input);
     setSaved(true);
-    setToast({
-      id: Date.now().toString(),
-      type: 'success',
-      message: 'Bug Report 已保存，前往 ~/history 查看',
-    });
+    showToast('success', 'Bug Report 已保存，前往 ~/history 查看');
   };
 
   const handleShare = async () => {
     if (!bugReport) return;
     const result = await shareBugReport(bugReport);
-    if (result === 'copied') {
-      setToast({
-        id: Date.now().toString(),
-        type: 'success',
-        message: '链接已复制到剪贴板',
-      });
-    } else if (result === 'failed') {
-      setToast({
-        id: Date.now().toString(),
-        type: 'error',
-        message: '复制失败，请手动复制',
-      });
+    if (result === 'shared') {
+      showToast('success', '分享面板已打开');
+    } else if (result === 'copied') {
+      showToast('success', '链接已复制到剪贴板');
+    } else {
+      showToast('error', '复制失败，请手动复制');
     }
   };
 
@@ -174,7 +170,7 @@ export default function DebugPage() {
               <p className="text-xs font-mono text-[var(--text-tertiary)] mb-3">
                 {'>'} 常见 Bug 模板（点击快速填入）：
               </p>
-              <div className="flex gap-2 overflow-x-auto pb-2 pl-0">
+              <div className="template-scroll flex gap-2 overflow-x-auto pb-2 pl-0">
                 {QUICK_TEMPLATES.map((template) => (
                   <button
                     key={template.label}

@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useBugStore } from '@/hooks/useBugStore';
 import BugReportCard from '@/components/bug/BugReportCard';
 import SeverityBadge from '@/components/ui/SeverityBadge';
 import Toast, { ToastData } from '@/components/ui/Toast';
 import StatsCharts from '@/components/history/StatsCharts';
+import { useToastId } from '@/hooks/useToastId';
 import { AlertIcon, WrenchIcon, CheckIcon, ClipboardIcon, BugIcon, ChevronDownIcon, ChevronUpIcon } from '@/components/ui/Icon';
 
 type FilterStatus = 'ALL' | 'OPEN' | 'FIXING' | 'RESOLVED';
@@ -44,31 +45,41 @@ function SkeletonCard() {
 }
 
 export default function HistoryPage() {
-  const { bugs, stats, loaded, deleteBug, selectPatch, resolveBug } = useBugStore();
+  const { bugs, stats, loaded, deleteBug, selectPatch, resolveBug, checkIn } = useBugStore();
   const [filter, setFilter] = useState<FilterStatus>('ALL');
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastData | null>(null);
+  const nextToastId = useToastId();
 
   const filteredBugs = filter === 'ALL'
     ? bugs
     : bugs.filter(bug => bug.status === filter);
 
+  const showToast = useCallback((type: ToastData['type'], message: string) => {
+    setToast({ id: nextToastId(), type, message });
+  }, [nextToastId]);
+
   const handleDelete = (bugId: string, title: string) => {
     if (window.confirm(`确定要删除 Bug「${title}」吗？此操作不可撤销。`)) {
       deleteBug(bugId);
       if (expandedId === bugId) setExpandedId(null);
-      setToast({ id: Date.now().toString(), type: 'info', message: `Bug「${title}」已删除` });
+      showToast('info', `Bug「${title}」已删除`);
     }
   };
 
   const handleSelectPatch = (bugId: string, patchId: string, patchName: string) => {
     selectPatch(bugId, patchId, patchName);
-    setToast({ id: Date.now().toString(), type: 'success', message: `修复方案「${patchName}」已激活` });
+    showToast('success', `修复方案「${patchName}」已激活`);
   };
 
   const handleResolve = (bugId: string) => {
     resolveBug(bugId);
-    setToast({ id: Date.now().toString(), type: 'success', message: 'Bug 已标记为修复' });
+    showToast('success', 'Bug 已标记为修复');
+  };
+
+  const handleCheckIn = (bugId: string) => {
+    checkIn(bugId);
+    showToast('success', '今日打卡成功，修复进度 +1');
   };
 
   const toggleExpand = (bugId: string) => {
@@ -231,12 +242,13 @@ export default function HistoryPage() {
                   <div className="expand-inner">
                     <div className="p-4 sm:p-5 bg-[var(--bg-primary)]/50">
                       <BugReportCard
-                        bug={bug}
-                        interactive={true}
-                        selectedPatchId={bug.selectedPatchId}
-                        onSelectPatch={(patchId, patchName) => handleSelectPatch(bug.id, patchId, patchName)}
-                        onResolve={() => handleResolve(bug.id)}
-                      />
+                      bug={bug}
+                      interactive={true}
+                      selectedPatchId={bug.selectedPatchId}
+                      onSelectPatch={(patchId, patchName) => handleSelectPatch(bug.id, patchId, patchName)}
+                      onResolve={() => handleResolve(bug.id)}
+                      onCheckIn={() => handleCheckIn(bug.id)}
+                    />
                     </div>
                   </div>
                 </div>

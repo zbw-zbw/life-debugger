@@ -239,6 +239,24 @@ export const MOCK_ACHIEVEMENTS: Achievement[] = [
     category: '特殊',
     rarity: 'legendary',
   },
+  {
+    id: 'week-streak',
+    icon: 'calendar',
+    title: '七日战士',
+    description: '连续7天打卡修复Bug',
+    condition: '任意Bug连续打卡7天',
+    category: '修复',
+    rarity: 'rare',
+  },
+  {
+    id: 'month-streak',
+    icon: 'calendar',
+    title: '月度修复官',
+    description: '累计打卡21天',
+    condition: '累计打卡21天',
+    category: '修复',
+    rarity: 'epic',
+  },
 ];
 
 export const RARITY_CONFIG: Record<string, { label: string; color: string; borderColor: string; bgColor: string }> = {

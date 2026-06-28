@@ -1,51 +1,95 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useReducer, useRef } from 'react';
 import { ANALYSIS_STEPS } from '@/lib/mockGenerator';
 
 interface AnalysisProcessProps {
   streamingText?: string;
 }
 
+interface State {
+  currentStep: number;
+  displayedSteps: string[];
+  progress: number;
+  animationDone: boolean;
+  cpuUsage: number;
+  memUsage: number;
+}
+
+type Action =
+  | { type: 'NEXT_STEP'; text: string; progress: number }
+  | { type: 'COMPLETE' }
+  | { type: 'UPDATE_METRICS'; cpu: number; mem: number };
+
+function clamp(value: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function reducer(state: State, action: Action): State {
+  switch (action.type) {
+    case 'NEXT_STEP':
+      return {
+        ...state,
+        displayedSteps: [...state.displayedSteps, action.text],
+        currentStep: state.currentStep + 1,
+        progress: action.progress,
+      };
+    case 'COMPLETE':
+      return { ...state, progress: 100, animationDone: true };
+    case 'UPDATE_METRICS':
+      return { ...state, cpuUsage: action.cpu, memUsage: action.mem };
+    default:
+      return state;
+  }
+}
+
 export default function AnalysisProcess({ streamingText = '' }: AnalysisProcessProps) {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [displayedSteps, setDisplayedSteps] = useState<string[]>([]);
-  const [progress, setProgress] = useState(0);
-  const [animationDone, setAnimationDone] = useState(false);
-  const [cpuUsage, setCpuUsage] = useState(72);
-  const [memUsage, setMemUsage] = useState(2.1);
+  const [state, dispatch] = useReducer(reducer, {
+    currentStep: 0,
+    displayedSteps: [],
+    progress: 0,
+    animationDone: false,
+    cpuUsage: 72,
+    memUsage: 2.1,
+  });
+
+  const { currentStep, displayedSteps, progress, animationDone, cpuUsage, memUsage } = state;
+  const stepRef = useRef(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCpuUsage(prev => {
-        const delta = Math.floor(Math.random() * 7) - 3; // -3 到 +3 波动
-        return Math.max(55, Math.min(95, prev + delta));
-      });
-      setMemUsage(prev => {
-        const delta = (Math.random() * 0.4) - 0.2; // -0.2 到 +0.2 波动
-        return Math.max(1.5, Math.min(3.2, parseFloat((prev + delta).toFixed(1))));
+      const cpuDelta = Math.floor(Math.random() * 7) - 3;
+      const memDelta = (Math.random() * 0.4) - 0.2;
+      dispatch({
+        type: 'UPDATE_METRICS',
+        cpu: clamp(state.cpuUsage + cpuDelta, 55, 95),
+        mem: clamp(parseFloat((state.memUsage + memDelta).toFixed(1)), 1.5, 3.2),
       });
     }, 500);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [state.cpuUsage, state.memUsage]);
 
   useEffect(() => {
     if (currentStep >= ANALYSIS_STEPS.length) {
-      setProgress(100);
-      setAnimationDone(true);
+      if (!animationDone) {
+        dispatch({ type: 'COMPLETE' });
+      }
       return;
     }
 
     const step = ANALYSIS_STEPS[currentStep];
     const timer = setTimeout(() => {
-      setDisplayedSteps(prev => [...prev, step.text]);
-      setCurrentStep(prev => prev + 1);
-      setProgress(Math.round(((currentStep + 1) / ANALYSIS_STEPS.length) * 100));
+      stepRef.current = currentStep + 1;
+      dispatch({
+        type: 'NEXT_STEP',
+        text: step.text,
+        progress: Math.round(((currentStep + 1) / ANALYSIS_STEPS.length) * 100),
+      });
     }, step.delay);
 
     return () => clearTimeout(timer);
-  }, [currentStep]);
+  }, [currentStep, animationDone]);
 
   const renderLine = (text: string) => {
     if (text.includes('[██████████]')) {

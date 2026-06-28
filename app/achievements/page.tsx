@@ -7,7 +7,7 @@ import { useBugStore } from '@/hooks/useBugStore';
 import {
   BugIcon, SearchIcon, SpyIcon, WrenchIcon, ToolsIcon,
   TargetIcon, MoonIcon, CupIcon, RunningIcon, CrownIcon,
-  LockIcon, TrophyIcon, MedalIcon,
+  LockIcon, TrophyIcon, MedalIcon, CalendarIcon,
 } from '@/components/ui/Icon';
 
 const iconMap: Record<string, React.FC<{ className?: string; size?: number }>> = {
@@ -21,6 +21,7 @@ const iconMap: Record<string, React.FC<{ className?: string; size?: number }>> =
   cup: CupIcon,
   running: RunningIcon,
   crown: CrownIcon,
+  calendar: CalendarIcon,
 };
 
 type FilterCategory = 'ALL' | '诊断' | '修复' | '特殊';

@@ -1,21 +1,49 @@
-'use client';
-
 import { BugReport } from '@/types/bug';
-import { SEVERITY_MAP } from '@/lib/constants';
 
-export function getShareText(bug: BugReport): string {
-  const severityInfo = SEVERITY_MAP[bug.severity];
-  return `我在人生Debug器发现了一个Bug！
-Bug #${bug.id}「${bug.title}」
-严重等级: ${bug.severity} ${severityInfo?.label || ''} | 已触发 ${bug.triggerCount} 次
-来诊断你的人生Bug → https://life-debugger.vercel.app`;
+function generateShareText(bug: BugReport): string {
+  return `我在「人生Debug器」诊断出一个 Bug：${bug.title}\n严重等级：${bug.severity}\n预计修复周期：${bug.fixDays}天\n置信度：${bug.confidence}%\n\n用 Debug 的视角，拆解生活难题。`;
 }
 
-export async function shareBugReport(bug: BugReport): Promise<'copied' | 'failed'> {
-  try {
-    await navigator.clipboard.writeText(getShareText(bug));
-    return 'copied';
-  } catch {
-    return 'failed';
+function generateShareUrl(): string {
+  if (typeof window !== 'undefined') {
+    return window.location.origin;
   }
+  return 'https://life-debugger.vercel.app';
+}
+
+export type ShareResult = 'shared' | 'copied' | 'failed';
+
+export async function shareBugReport(bug: BugReport): Promise<ShareResult> {
+  const text = generateShareText(bug);
+  const url = generateShareUrl();
+
+  // Try native Web Share API first
+  if (typeof navigator !== 'undefined' && 'share' in navigator) {
+    try {
+      await navigator.share({
+        title: `人生Debug器 — ${bug.title}`,
+        text,
+        url,
+      });
+      return 'shared';
+    } catch (err) {
+      // User cancelled or share failed — fall through to clipboard
+      if ((err as Error).name === 'AbortError') {
+        return 'shared';
+      }
+      console.warn('Web Share API failed, falling back to clipboard:', err);
+    }
+  }
+
+  // Fallback to clipboard
+  if (typeof navigator !== 'undefined' && 'clipboard' in navigator) {
+    try {
+      await navigator.clipboard.writeText(`${text}\n\n${url}`);
+      return 'copied';
+    } catch {
+      return 'failed';
+    }
+  }
+
+  return 'failed';
 }

@@ -1,9 +1,12 @@
 'use client';
 
 import { BugReport, Patch } from '@/types/bug';
-import { SEVERITY_MAP } from '@/lib/constants';
 import SeverityBadge from '@/components/ui/SeverityBadge';
-import { BugIcon, AlertIcon, WrenchIcon, CheckIcon, ClipboardIcon, SearchIcon, DiffDot } from '@/components/ui/Icon';
+import { computeStreak, hasCheckedInToday } from '@/lib/checkIn';
+import {
+  BugIcon, AlertIcon, WrenchIcon, CheckIcon, ClipboardIcon,
+  SearchIcon, CalendarIcon, DiffDot,
+} from '@/components/ui/Icon';
 
 interface BugReportCardProps {
   bug: BugReport;
@@ -12,6 +15,7 @@ interface BugReportCardProps {
   selectedPatchId?: string | null;
   onSelectPatch?: (patchId: string, patchName: string) => void;
   onResolve?: () => void;
+  onCheckIn?: () => void;
 }
 
 const SEVERITY_SIDE_COLORS: Record<string, string> = {
@@ -35,12 +39,17 @@ export default function BugReportCard({
   selectedPatchId: externalSelectedPatchId,
   onSelectPatch,
   onResolve,
+  onCheckIn,
 }: BugReportCardProps) {
   const currentStatus = STATUS_CONFIG[bug.status];
   const sideColor = SEVERITY_SIDE_COLORS[bug.severity] || 'var(--border-default)';
   const isHighSeverity = bug.severity === 'P0' || bug.severity === 'P1';
 
   const StatusIcon = currentStatus.icon;
+
+  const checkInDates = 'checkInDates' in bug ? (bug as { checkInDates?: string[] }).checkInDates ?? [] : [];
+  const streak = computeStreak(checkInDates);
+  const checkedInToday = hasCheckedInToday(checkInDates);
 
   return (
     <div
@@ -154,7 +163,28 @@ export default function BugReportCard({
         </div>
 
         {interactive && bug.status === 'FIXING' && (
-          <div className="pt-2">
+          <div className="pt-2 space-y-3">
+            <div className="flex items-center justify-between rounded-lg border border-[var(--border-default)] bg-[var(--bg-tertiary)] px-4 py-3">
+              <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
+                <CalendarIcon size={16} className="text-[var(--blue)]" />
+                <span>连续打卡</span>
+                <span className="font-mono font-bold text-[var(--blue)]">{streak}</span>
+                <span>天</span>
+              </div>
+              <button
+                onClick={onCheckIn}
+                disabled={checkedInToday}
+                className={`btn-primary inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-mono transition-all duration-200 ${
+                  checkedInToday
+                    ? 'text-[var(--green)] border border-[var(--green)] opacity-60 cursor-default'
+                    : 'bg-[var(--blue)] text-white hover:bg-[var(--blue)]/90'
+                }`}
+              >
+                <CheckIcon size={12} />
+                {checkedInToday ? '今日已打卡' : '今日打卡'}
+              </button>
+            </div>
+
             <button
               onClick={onResolve}
               className="btn-primary w-full py-2.5 rounded-lg bg-[var(--green)] text-[var(--bg-primary)] font-mono font-bold text-sm transition-all duration-300 hover:shadow-[0_0_20px_rgba(57,211,83,0.3)]"
@@ -171,7 +201,7 @@ export default function BugReportCard({
           <div className="pt-2 text-center">
             <span className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--green-muted)]/20 text-[var(--green)] font-mono text-sm">
               <CheckIcon className="text-sm" size={14} />
-              Bug 已修复 — 继续保持！
+              Bug 已修复 — 继续保持
             </span>
           </div>
         )}

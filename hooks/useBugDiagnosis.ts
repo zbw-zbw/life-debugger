@@ -43,23 +43,7 @@ export function useBugDiagnosis(): UseBugDiagnosisReturn {
     lastDescriptionRef.current = '';
   }, []);
 
-  const retry = useCallback(() => {
-    if (lastDescriptionRef.current) {
-      setError(null);
-      setErrorType(null);
-      setBugReport(null);
-      setStreamingText('');
-      setIsDemoMode(false);
-      startDiagnosisInternal(lastDescriptionRef.current);
-    }
-  }, []);
-
-  const startDiagnosis = useCallback((description: string) => {
-    lastDescriptionRef.current = description;
-    startDiagnosisInternal(description);
-  }, []);
-
-  const startDiagnosisInternal = async (description: string) => {
+  const startDiagnosisInternal = useCallback(async (description: string) => {
     setPhase('analyzing');
     setStreamingText('');
     setError(null);
@@ -218,7 +202,23 @@ export function useBugDiagnosis(): UseBugDiagnosisReturn {
     } finally {
       abortRef.current = null;
     }
-  };
+  }, []);
+
+  const retry = useCallback(() => {
+    if (lastDescriptionRef.current) {
+      setError(null);
+      setErrorType(null);
+      setBugReport(null);
+      setStreamingText('');
+      setIsDemoMode(false);
+      startDiagnosisInternal(lastDescriptionRef.current);
+    }
+  }, [startDiagnosisInternal]);
+
+  const startDiagnosis = useCallback((description: string) => {
+    lastDescriptionRef.current = description;
+    startDiagnosisInternal(description);
+  }, [startDiagnosisInternal]);
 
   return {
     phase,
