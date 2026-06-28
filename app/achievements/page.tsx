@@ -183,8 +183,33 @@ export default function AchievementsPage() {
 
         {/* Loading State */}
         {!loaded && (
-          <div className="text-center py-12">
-            <div className="font-mono text-sm text-[var(--text-tertiary)]">加载中...</div>
+          <div className="space-y-6">
+            <div className="rounded-xl border border-[var(--border-default)] bg-[var(--bg-secondary)] p-5">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <div className="skeleton w-6 h-6 rounded" />
+                  <div>
+                    <div className="skeleton h-4 w-24 rounded mb-2" />
+                    <div className="skeleton h-3 w-32 rounded" />
+                  </div>
+                </div>
+                <div className="skeleton h-8 w-12 rounded" />
+              </div>
+              <div className="skeleton h-2 w-full rounded-full" />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[0, 1, 2, 3, 4, 5].map(i => (
+                <div key={i} className="rounded-xl border border-[var(--border-default)] bg-[var(--bg-secondary)] p-5">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="skeleton w-8 h-8 rounded" />
+                    <div className="skeleton h-4 w-10 rounded" />
+                  </div>
+                  <div className="skeleton h-4 w-20 rounded mb-2" />
+                  <div className="skeleton h-3 w-full rounded mb-1" />
+                  <div className="skeleton h-3 w-2/3 rounded" />
+                </div>
+              ))}
+            </div>
           </div>
         )}
 

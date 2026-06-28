@@ -6,6 +6,7 @@ import { useBugStore } from '@/hooks/useBugStore';
 import BugReportCard from '@/components/bug/BugReportCard';
 import SeverityBadge from '@/components/ui/SeverityBadge';
 import Toast, { ToastData } from '@/components/ui/Toast';
+import StatsCharts from '@/components/history/StatsCharts';
 import { AlertIcon, WrenchIcon, CheckIcon, ClipboardIcon, BugIcon, ChevronDownIcon, ChevronUpIcon } from '@/components/ui/Icon';
 
 type FilterStatus = 'ALL' | 'OPEN' | 'FIXING' | 'RESOLVED';
@@ -21,6 +22,25 @@ function formatDisplayDate(dateStr: string): string {
   const date = new Date(dateStr);
   if (isNaN(date.getTime())) return dateStr;
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
+function SkeletonCard() {
+  return (
+    <div className="rounded-xl border border-[var(--border-default)] bg-[var(--bg-secondary)] p-5">
+      <div className="flex items-center gap-2 mb-3">
+        <div className="skeleton h-3 w-16 rounded" />
+        <div className="skeleton h-5 w-12 rounded-full" />
+      </div>
+      <div className="skeleton h-4 w-2/3 rounded mb-2" />
+      <div className="flex gap-2 mb-4">
+        <div className="skeleton h-3 w-20 rounded" />
+        <div className="skeleton h-3 w-16 rounded" />
+        <div className="skeleton h-3 w-24 rounded" />
+      </div>
+      <div className="skeleton h-3 w-full rounded mb-2" />
+      <div className="skeleton h-3 w-3/4 rounded" />
+    </div>
+  );
 }
 
 export default function HistoryPage() {
@@ -57,8 +77,26 @@ export default function HistoryPage() {
 
   if (!loaded) {
     return (
-      <div className="min-h-screen pt-24 pb-16 px-4 flex items-center justify-center">
-        <div className="font-mono text-sm text-[var(--text-tertiary)]">加载中...</div>
+      <div className="min-h-screen pt-20 pb-16 px-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="mb-8">
+            <div className="skeleton h-8 w-48 rounded mb-2" />
+            <div className="skeleton h-4 w-64 rounded" />
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+            {[0, 1, 2, 3].map(i => (
+              <div key={i} className="rounded-xl border border-[var(--border-default)] bg-[var(--bg-secondary)] p-4 text-center">
+                <div className="skeleton h-8 w-12 rounded mx-auto mb-2" />
+                <div className="skeleton h-3 w-16 rounded mx-auto" />
+              </div>
+            ))}
+          </div>
+          <div className="space-y-4">
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
+          </div>
+        </div>
       </div>
     );
   }
@@ -76,6 +114,7 @@ export default function HistoryPage() {
           <p className="text-[var(--text-secondary)] pl-4 text-sm sm:text-base">查看和管理你的人生 Bug 档案</p>
         </div>
 
+        {/* Stats Cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
           {[
             { label: '总计', value: stats.total, color: 'var(--text-primary)' },
@@ -90,6 +129,10 @@ export default function HistoryPage() {
           ))}
         </div>
 
+        {/* Data Visualization Charts */}
+        <StatsCharts />
+
+        {/* Filters */}
         <div className="flex flex-wrap gap-2 mb-6">
           {(['ALL', 'OPEN', 'FIXING', 'RESOLVED'] as FilterStatus[]).map((status) => (
             <button
@@ -106,6 +149,7 @@ export default function HistoryPage() {
           ))}
         </div>
 
+        {/* Bug List */}
         <div className="space-y-4">
           {filteredBugs.map((bug) => {
             const status = STATUS_CONFIG[bug.status];
@@ -182,21 +226,25 @@ export default function HistoryPage() {
                   </div>
                 </div>
 
-                {isExpanded && (
-                  <div className="p-4 sm:p-5 bg-[var(--bg-primary)]/50">
-                    <BugReportCard
-                      bug={bug}
-                      interactive={true}
-                      selectedPatchId={bug.selectedPatchId}
-                      onSelectPatch={(patchId, patchName) => handleSelectPatch(bug.id, patchId, patchName)}
-                      onResolve={() => handleResolve(bug.id)}
-                    />
+                {/* Expandable Detail with smooth transition */}
+                <div className={`expand-container ${isExpanded ? 'is-open' : ''}`}>
+                  <div className="expand-inner">
+                    <div className="p-4 sm:p-5 bg-[var(--bg-primary)]/50">
+                      <BugReportCard
+                        bug={bug}
+                        interactive={true}
+                        selectedPatchId={bug.selectedPatchId}
+                        onSelectPatch={(patchId, patchName) => handleSelectPatch(bug.id, patchId, patchName)}
+                        onResolve={() => handleResolve(bug.id)}
+                      />
+                    </div>
                   </div>
-                )}
+                </div>
               </div>
             );
           })}
 
+          {/* Empty State */}
           {filteredBugs.length === 0 && (
             <div className="text-center py-16">
               {bugs.length === 0 ? (

@@ -40,17 +40,11 @@ export default function Toast({ toast, onClose }: ToastProps) {
       <span className="text-sm text-[var(--text-primary)] pr-2">{toast.message}</span>
       <button
         onClick={onClose}
-        className="text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] ml-2"
+        className="btn-primary text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] ml-2"
         aria-label="关闭"
       >
         <CloseIcon size={14} />
       </button>
     </div>
   );
-}
-
-export function useToast() {
-  // This hook will be used in parent components
-  // For simplicity, we'll implement toast management inline in the page
-  return {};
 }

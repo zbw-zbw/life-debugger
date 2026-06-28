@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import { BugStoreProvider } from "@/hooks/useBugStore";
+import AchievementToast from "@/components/ui/AchievementToast";
 
 export const metadata: Metadata = {
   title: '人生Debug器 — 把生活烦恼变成可修复的Bug报告',
@@ -32,9 +34,12 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" className="h-full antialiased">
       <body className="min-h-full flex flex-col bg-[var(--bg-primary)] text-[var(--text-primary)]">
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        <BugStoreProvider>
+          <Header />
+          <main className="flex-1">{children}</main>
+          <Footer />
+          <AchievementToast />
+        </BugStoreProvider>
       </body>
     </html>
   );

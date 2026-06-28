@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, createContext, useContext, ReactNode } from 'react';
 import { BugReport } from '@/types/bug';
 
 export interface StoredBug extends BugReport {
@@ -80,7 +80,25 @@ function checkAchievements(data: BugStoreData): UnlockedAchievement[] {
   return newAchievements;
 }
 
-export function useBugStore() {
+interface BugStoreContextValue {
+  bugs: StoredBug[];
+  unlockedAchievements: UnlockedAchievement[];
+  newlyUnlocked: string[];
+  clearNewlyUnlocked: () => void;
+  stats: { total: number; open: number; fixing: number; resolved: number };
+  severityStats: { severity: string; count: number }[];
+  impactAreaStats: { area: string; count: number }[];
+  loaded: boolean;
+  saveBug: (bug: BugReport, userInput: string) => void;
+  deleteBug: (bugId: string) => void;
+  selectPatch: (bugId: string, patchId: string, patchName: string) => void;
+  resolveBug: (bugId: string) => void;
+  getBugById: (bugId: string) => StoredBug | undefined;
+}
+
+const BugStoreContext = createContext<BugStoreContextValue | null>(null);
+
+export function BugStoreProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<BugStoreData>({ bugs: [], unlockedAchievements: [] });
   const [loaded, setLoaded] = useState(false);
   const [newlyUnlocked, setNewlyUnlocked] = useState<string[]>([]);
@@ -166,12 +184,29 @@ export function useBugStore() {
     resolved: data.bugs.filter(b => b.status === 'RESOLVED').length,
   }), [data.bugs]);
 
-  return {
+  const severityStats = useMemo(() => {
+    const order = ['P0', 'P1', 'P2', 'P3', 'P4'];
+    const map = new Map<string, number>();
+    data.bugs.forEach(b => map.set(b.severity, (map.get(b.severity) || 0) + 1));
+    return order.filter(s => map.has(s)).map(s => ({ severity: s, count: map.get(s)! }));
+  }, [data.bugs]);
+
+  const impactAreaStats = useMemo(() => {
+    const map = new Map<string, number>();
+    data.bugs.forEach(b => b.impactAreas.forEach(a => map.set(a, (map.get(a) || 0) + 1)));
+    return Array.from(map.entries())
+      .map(([area, count]) => ({ area, count }))
+      .sort((a, b) => b.count - a.count);
+  }, [data.bugs]);
+
+  const value: BugStoreContextValue = {
     bugs: data.bugs,
     unlockedAchievements: data.unlockedAchievements,
     newlyUnlocked,
     clearNewlyUnlocked,
     stats,
+    severityStats,
+    impactAreaStats,
     loaded,
     saveBug,
     deleteBug,
@@ -179,4 +214,14 @@ export function useBugStore() {
     resolveBug,
     getBugById,
   };
+
+  return <BugStoreContext.Provider value={value}>{children}</BugStoreContext.Provider>;
+}
+
+export function useBugStore() {
+  const ctx = useContext(BugStoreContext);
+  if (!ctx) {
+    throw new Error('useBugStore must be used within BugStoreProvider');
+  }
+  return ctx;
 }
