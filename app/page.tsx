@@ -39,7 +39,7 @@ function ConceptSection() {
                   <div className="font-mono text-sm text-[var(--text-tertiary)] mb-1">
                     // {item.text}
                   </div>
-                  <p className="text-[var(--text-secondary)] pl-4 border-l-2 border-[var(--border-default)]">
+                  <p className="text-[var(--text-secondary)] pl-4">
                     {item.sub}
                   </p>
                 </div>

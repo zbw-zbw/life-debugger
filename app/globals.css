@@ -76,8 +76,14 @@ body {
 }
 
 /* ====== Global cursor ====== */
-a, button, [role="button"], input, textarea, select, label[for], summary {
+a, button, [role="button"], input, textarea, select, label[for], summary,
+[tabindex]:not([tabindex="-1"]), .clickable, .card-hover {
   cursor: pointer;
+}
+
+/* Textarea uses text cursor */
+textarea {
+  cursor: text;
 }
 
 /* ====== Animations ====== */

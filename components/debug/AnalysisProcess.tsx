@@ -80,7 +80,7 @@ export default function AnalysisProcess({ streamingText = '' }: AnalysisProcessP
 
   return (
     <div className="rounded-xl border border-[var(--border-default)] bg-[var(--bg-secondary)] overflow-hidden animate-fade-in-up">
-      <div className="flex items-center gap-2 px-4 py-3 bg-[var(--bg-elevated)] border-b border-[var(--border-default)]">
+      <div className="flex items-center gap-2 px-4 py-3 bg-[var(--bg-elevated)]">
         <div className="flex gap-1.5">
           <div className="w-3 h-3 rounded-full bg-[var(--red)]" />
           <div className="w-3 h-3 rounded-full bg-[var(--yellow)]" />
@@ -118,7 +118,7 @@ export default function AnalysisProcess({ streamingText = '' }: AnalysisProcessP
 
         {/* Streaming text preview */}
         {animationDone && streamingText && (
-          <div className="mt-4 pt-4 border-t border-[var(--border-default)]/50">
+          <div className="mt-4 pt-4">
             <div className="relative">
               <pre className="font-mono text-xs text-[var(--text-tertiary)] whitespace-pre-wrap break-all max-h-40 overflow-hidden">
                 {streamingText.slice(-300)}
@@ -130,7 +130,7 @@ export default function AnalysisProcess({ streamingText = '' }: AnalysisProcessP
       </div>
 
       {/* Bottom status bar */}
-      <div className="px-4 py-2 bg-[var(--bg-elevated)] border-t border-[var(--border-default)] flex items-center justify-between text-[10px] font-mono text-[var(--text-tertiary)]">
+      <div className="px-4 py-2 bg-[var(--bg-elevated)] flex items-center justify-between text-[10px] font-mono text-[var(--text-tertiary)]">
         <div className="flex items-center gap-3">
           <span>CPU: {cpuUsage}%</span>
           <span>MEM: {memUsage.toFixed(1)}GB</span>

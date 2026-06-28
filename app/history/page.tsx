@@ -2,11 +2,11 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useBugStore, StoredBug } from '@/hooks/useBugStore';
+import { useBugStore } from '@/hooks/useBugStore';
 import BugReportCard from '@/components/bug/BugReportCard';
 import SeverityBadge from '@/components/ui/SeverityBadge';
 import Toast, { ToastData } from '@/components/ui/Toast';
-import { AlertIcon, WrenchIcon, CheckIcon, ClipboardIcon } from '@/components/ui/Icon';
+import { AlertIcon, WrenchIcon, CheckIcon, ClipboardIcon, BugIcon, ChevronDownIcon, ChevronUpIcon } from '@/components/ui/Icon';
 
 type FilterStatus = 'ALL' | 'OPEN' | 'FIXING' | 'RESOLVED';
 
@@ -48,7 +48,7 @@ export default function HistoryPage() {
 
   const handleResolve = (bugId: string) => {
     resolveBug(bugId);
-    setToast({ id: Date.now().toString(), type: 'success', message: 'Bug 已标记为修复！' });
+    setToast({ id: Date.now().toString(), type: 'success', message: 'Bug 已标记为修复' });
   };
 
   const toggleExpand = (bugId: string) => {
@@ -71,9 +71,9 @@ export default function HistoryPage() {
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-1 h-6 bg-[var(--blue)] rounded-full" />
-            <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)]">Bug 历史</h1>
+            <h1 className="text-xl sm:text-3xl font-bold text-[var(--text-primary)]">Bug 历史</h1>
           </div>
-          <p className="text-[var(--text-secondary)] pl-4">查看和管理你的人生 Bug 档案</p>
+          <p className="text-[var(--text-secondary)] pl-4 text-sm sm:text-base">查看和管理你的人生 Bug 档案</p>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
@@ -141,7 +141,7 @@ export default function HistoryPage() {
                         </div>
                       )}
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-shrink-0">
                       {bug.impactAreas.slice(0, 2).map((area) => (
                         <span key={area} className="px-2 py-0.5 text-[10px] font-mono rounded-md border border-[var(--border-default)] text-[var(--text-tertiary)]">
                           {area}
@@ -150,7 +150,7 @@ export default function HistoryPage() {
                     </div>
                   </div>
 
-                  <div className="mt-4 pt-3 flex items-center justify-between">
+                  <div className="mt-4 flex items-center justify-between">
                     <div className="flex items-center gap-4 text-xs font-mono text-[var(--text-tertiary)]">
                       <span>预计{bug.fixDays}天修复</span>
                       <span>置信度 {bug.confidence}%</span>
@@ -158,22 +158,32 @@ export default function HistoryPage() {
                     <div className="flex items-center gap-3">
                       <button
                         onClick={() => handleDelete(bug.id, bug.title)}
-                        className="text-xs font-mono text-[var(--red)] hover:opacity-100 opacity-60 transition-opacity"
+                        className="btn-primary text-xs font-mono text-[var(--red)] opacity-60 hover:opacity-100 transition-opacity"
                       >
                         删除
                       </button>
                       <button
                         onClick={() => toggleExpand(bug.id)}
-                        className="text-xs font-mono text-[var(--blue)] hover:text-[var(--green)] transition-colors"
+                        className="btn-primary inline-flex items-center gap-1 text-xs font-mono text-[var(--blue)] hover:text-[var(--green)] transition-colors"
                       >
-                        {isExpanded ? '收起 ↑' : '查看详情 ↓'}
+                        {isExpanded ? (
+                          <>
+                            <span>收起</span>
+                            <ChevronUpIcon size={12} />
+                          </>
+                        ) : (
+                          <>
+                            <span>查看详情</span>
+                            <ChevronDownIcon size={12} />
+                          </>
+                        )}
                       </button>
                     </div>
                   </div>
                 </div>
 
                 {isExpanded && (
-                  <div className="border-t border-[var(--border-default)] p-4 sm:p-5 bg-[var(--bg-primary)]/50">
+                  <div className="p-4 sm:p-5 bg-[var(--bg-primary)]/50">
                     <BugReportCard
                       bug={bug}
                       interactive={true}
@@ -191,7 +201,9 @@ export default function HistoryPage() {
             <div className="text-center py-16">
               {bugs.length === 0 ? (
                 <>
-                  <div className="font-mono text-4xl mb-4">🐛</div>
+                  <div className="mb-4 flex justify-center text-[var(--text-tertiary)]">
+                    <BugIcon size={40} />
+                  </div>
                   <div className="font-mono text-sm text-[var(--text-secondary)] mb-2">
                     {'>'} git log --bugs
                   </div>
@@ -207,7 +219,9 @@ export default function HistoryPage() {
                 </>
               ) : (
                 <>
-                  <ClipboardIcon className="mx-auto mb-3 text-[var(--text-tertiary)]" size={40} />
+                  <div className="mb-3 flex justify-center text-[var(--text-tertiary)]">
+                    <ClipboardIcon size={40} />
+                  </div>
                   <p className="text-[var(--text-secondary)]">该状态下暂无 Bug 记录</p>
                 </>
               )}

@@ -1,4 +1,30 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="8" fill="#0d1117"/>
-  <text x="16" y="22" text-anchor="middle" font-family="monospace" font-size="16" font-weight="bold" fill="#39d353">&gt;_</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#161b22"/>
+    </linearGradient>
+    <linearGradient id="bug" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#39d353"/>
+      <stop offset="100%" stop-color="#2ea043"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#bg)"/>
+  <rect width="64" height="64" rx="14" fill="none" stroke="#30363d" stroke-width="1.5"/>
+  <g transform="translate(16, 14)">
+    <path d="M4 6 L8 10 L4 14" fill="none" stroke="#39d353" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <line x1="12" y1="20" x2="28" y2="20" stroke="#39d353" stroke-width="2.5" stroke-linecap="round"/>
+    <ellipse cx="20" cy="24" rx="9" ry="11" fill="url(#bug)" opacity="0.15"/>
+    <ellipse cx="20" cy="24" rx="9" ry="11" fill="none" stroke="url(#bug)" stroke-width="2"/>
+    <line x1="20" y1="13" x2="20" y2="35" stroke="#39d353" stroke-width="1.5" opacity="0.6"/>
+    <line x1="11" y1="18" x2="6" y2="14" stroke="#39d353" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="11" y1="24" x2="5" y2="24" stroke="#39d353" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="11" y1="30" x2="6" y2="34" stroke="#39d353" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="29" y1="18" x2="34" y2="14" stroke="#39d353" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="29" y1="24" x2="35" y2="24" stroke="#39d353" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="29" y1="30" x2="34" y2="34" stroke="#39d353" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M16 11 Q20 8 24 11" fill="none" stroke="#39d353" stroke-width="1.5" stroke-linecap="round"/>
+    <circle cx="16" cy="15" r="1.5" fill="#39d353"/>
+    <circle cx="24" cy="15" r="1.5" fill="#39d353"/>
+  </g>
 </svg>

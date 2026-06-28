@@ -73,7 +73,7 @@ function AchievementCard({ achievement }: { achievement: AchievementViewModel })
           <>
             <p className="text-xs text-[var(--text-secondary)] leading-relaxed">{achievement.description}</p>
             {achievement.unlockedAt && (
-              <div className="mt-3 pt-3 border-t border-[var(--border-default)]/50">
+              <div className="mt-3">
                 <span className="text-[10px] font-mono text-[var(--text-tertiary)]">
                   解锁于 {formatDisplayDate(achievement.unlockedAt)}
                 </span>
@@ -190,7 +190,7 @@ export default function AchievementsPage() {
 
         {/* Achievement Grid */}
         {loaded && (
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredAchievements.map((achievement) => (
               <AchievementCard key={achievement.id} achievement={achievement} />
             ))}

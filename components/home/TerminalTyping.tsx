@@ -96,7 +96,7 @@ export default function TerminalTyping({
   }, [currentLineIndex, currentCharIndex, lines, charDelay, lineDelay, isComplete, onComplete]);
 
   return (
-    <div className="font-mono text-sm leading-relaxed space-y-1">
+    <div className="font-mono text-xs sm:text-sm leading-relaxed space-y-1 overflow-x-auto">
       {displayedLines.map((line, i) => (
         <div key={i} className="terminal-line" style={{ animationDelay: `${i * 0.05}s` }}>
           {getLinePrefix(lines[i])}

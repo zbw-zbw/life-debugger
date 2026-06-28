@@ -35,7 +35,7 @@ export default function Header() {
   }, []);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-[var(--bg-primary)]/80 backdrop-blur-md border-b border-[var(--border-default)]">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-[var(--bg-primary)]/80 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -97,7 +97,7 @@ export default function Header() {
       />
       <div
         ref={drawerRef}
-        className={`md:hidden fixed top-16 right-0 bottom-0 w-60 bg-[var(--bg-secondary)] border-l border-[var(--border-default)] drawer-panel z-40 ${
+        className={`md:hidden fixed top-16 right-0 bottom-0 w-60 bg-[var(--bg-secondary)] drawer-panel z-40 ${
           menuOpen ? 'is-open pointer-events-auto' : 'pointer-events-none'
         }`}
       >

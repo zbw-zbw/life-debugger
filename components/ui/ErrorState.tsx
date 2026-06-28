@@ -1,5 +1,7 @@
 'use client';
 
+import { WifiIcon, GearIcon, ClockIcon, WrenchIcon } from '@/components/ui/Icon';
+
 interface ErrorStateProps {
   type: 'network' | 'api' | 'timeout' | 'parse';
   message?: string;
@@ -10,32 +12,33 @@ interface ErrorStateProps {
 const ERROR_CONFIG = {
   network: {
     title: 'Connection Failed',
-    icon: '📡',
+    IconComp: WifiIcon,
     description: '诊断引擎连接失败，请检查网络',
   },
   api: {
     title: 'AI Engine Busy',
-    icon: '⚙️',
+    IconComp: GearIcon,
     description: 'AI 引擎繁忙，请稍后重试',
   },
   timeout: {
     title: 'Request Timeout',
-    icon: '⏱️',
+    IconComp: ClockIcon,
     description: '分析超时，诊断引擎响应过慢',
   },
   parse: {
     title: 'Parse Error',
-    icon: '🔧',
+    IconComp: WrenchIcon,
     description: 'AI 输出异常，已使用预设诊断数据',
   },
 };
 
 export default function ErrorState({ type, message, onRetry, onBack }: ErrorStateProps) {
   const config = ERROR_CONFIG[type];
+  const { IconComp } = config;
 
   return (
     <div className="rounded-xl border border-[var(--border-default)] bg-[var(--bg-secondary)] overflow-hidden animate-fade-in-up">
-      <div className="flex items-center gap-2 px-4 py-3 bg-[var(--bg-elevated)] border-b border-[var(--border-default)]">
+      <div className="flex items-center gap-2 px-4 py-3 bg-[var(--bg-elevated)]">
         <div className="flex gap-1.5">
           <div className="w-3 h-3 rounded-full bg-[var(--red)]" />
           <div className="w-3 h-3 rounded-full bg-[var(--yellow)]" />
@@ -46,7 +49,9 @@ export default function ErrorState({ type, message, onRetry, onBack }: ErrorStat
         </span>
       </div>
       <div className="p-6 text-center">
-        <div className="text-3xl mb-3">{config.icon}</div>
+        <div className="mb-3 text-[var(--red)] flex justify-center">
+          <IconComp size={32} />
+        </div>
         <div className="font-mono text-sm text-[var(--red)] mb-2">
           {'>'} Error: {config.title}
         </div>
@@ -57,7 +62,7 @@ export default function ErrorState({ type, message, onRetry, onBack }: ErrorStat
           {onRetry && (
             <button
               onClick={onRetry}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-[var(--red)]/50 text-[var(--red)] font-mono text-sm transition-all duration-300 hover:bg-[var(--red)]/10 hover:border-[var(--red)]"
+              className="btn-primary inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-[var(--red)]/50 text-[var(--red)] font-mono text-sm transition-all duration-300 hover:bg-[var(--red)]/10 hover:border-[var(--red)]"
             >
               <span>$ retry</span>
             </button>
@@ -65,7 +70,7 @@ export default function ErrorState({ type, message, onRetry, onBack }: ErrorStat
           {onBack && (
             <button
               onClick={onBack}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-[var(--border-default)] text-[var(--text-secondary)] font-mono text-sm transition-all duration-300 hover:border-[var(--green)] hover:text-[var(--green)]"
+              className="btn-primary inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-[var(--border-default)] text-[var(--text-secondary)] font-mono text-sm transition-all duration-300 hover:border-[var(--green)] hover:text-[var(--green)]"
             >
               <span>{'<-'}</span>
               <span>$ back</span>
