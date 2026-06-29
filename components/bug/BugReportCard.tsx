@@ -174,7 +174,7 @@ export default function BugReportCard({
               <button
                 onClick={onCheckIn}
                 disabled={checkedInToday}
-                className={`btn-primary inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-mono transition-all duration-200 ${
+                className={`btn-primary inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-xs font-mono transition-all duration-200 ${
                   checkedInToday
                     ? 'text-[var(--green)] border border-[var(--green)] opacity-60 cursor-default'
                     : 'bg-[var(--blue)] text-white hover:bg-[var(--blue)]/90'
@@ -275,7 +275,7 @@ function PatchItem({
           </div>
           {isInteractive && !isResolved && (
             <span
-              className={`flex-shrink-0 px-3 py-1 rounded-md text-xs font-mono border transition-all duration-200 ${
+              className={`flex-shrink-0 self-center px-4 py-2 rounded-lg text-xs font-mono border transition-all duration-200 ${
                 isSelected
                   ? 'bg-[var(--green)] text-[var(--bg-primary)] border-[var(--green)]'
                   : 'border-[var(--border-default)] text-[var(--text-secondary)] hover:border-[var(--green)] hover:text-[var(--green)]'

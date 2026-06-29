@@ -149,7 +149,7 @@ export default function HistoryPage() {
             <button
               key={status}
               onClick={() => setFilter(status)}
-              className={`btn-primary px-3 py-1.5 rounded-lg text-sm font-mono transition-all duration-200 ${
+              className={`btn-primary px-4 py-2.5 rounded-lg text-sm font-mono transition-all duration-200 ${
                 filter === status
                   ? 'bg-[var(--bg-elevated)] text-[var(--text-primary)] border border-[var(--border-default)]'
                   : 'text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'
@@ -213,13 +213,13 @@ export default function HistoryPage() {
                     <div className="flex items-center gap-3">
                       <button
                         onClick={() => handleDelete(bug.id, bug.title)}
-                        className="btn-primary text-xs font-mono text-[var(--red)] opacity-60 hover:opacity-100 transition-opacity"
+                        className="btn-primary px-3 py-2 text-xs font-mono text-[var(--red)] opacity-60 hover:opacity-100 transition-opacity rounded-lg"
                       >
                         删除
                       </button>
                       <button
                         onClick={() => toggleExpand(bug.id)}
-                        className="btn-primary inline-flex items-center gap-1 text-xs font-mono text-[var(--blue)] hover:text-[var(--green)] transition-colors"
+                        className="btn-primary inline-flex items-center gap-1 px-3 py-2 text-xs font-mono text-[var(--blue)] hover:text-[var(--green)] transition-colors rounded-lg"
                       >
                         {isExpanded ? (
                           <>

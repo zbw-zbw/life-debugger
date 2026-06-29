@@ -171,7 +171,7 @@ export default function AchievementsPage() {
             <button
               key={category}
               onClick={() => setFilter(category)}
-              className={`btn-primary px-3 py-1.5 rounded-lg text-sm font-mono transition-all duration-200 ${
+              className={`btn-primary px-4 py-2.5 rounded-lg text-sm font-mono transition-all duration-200 ${
                 filter === category
                   ? 'bg-[var(--bg-elevated)] text-[var(--text-primary)] border border-[var(--border-default)]'
                   : 'text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'

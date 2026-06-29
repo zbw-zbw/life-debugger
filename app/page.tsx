@@ -88,7 +88,7 @@ function CTASection() {
 
             <Link
               href="/debug"
-              className="btn-primary inline-flex items-center gap-2 px-8 py-4 rounded-lg bg-[var(--green)] text-[var(--bg-primary)] font-mono font-bold text-lg transition-all duration-300 hover:shadow-[0_0_30px_rgba(57,211,83,0.3)]"
+              className="btn-primary inline-flex items-center justify-center gap-2 px-8 py-4 rounded-lg bg-[var(--green)] text-[var(--bg-primary)] font-mono font-bold text-lg transition-all duration-300 hover:shadow-[0_0_30px_rgba(57,211,83,0.3)] w-full sm:w-auto"
             >
               <span>$ life-debug start</span>
               <span className="cursor-blink">_</span>

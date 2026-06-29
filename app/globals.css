@@ -77,13 +77,20 @@ body {
 
 /* ====== Global cursor ====== */
 a, button, [role="button"], input, textarea, select, label[for], summary,
-[tabindex]:not([tabindex="-1"]), .clickable, .card-hover {
+[tabindex]:not([tabindex="-1"]), .card-hover {
   cursor: pointer;
 }
 
 /* Textarea uses text cursor */
 textarea {
   cursor: text;
+}
+
+/* ====== Touch target safety (min 44px on mobile) ====== */
+@media (max-width: 640px) {
+  .btn-primary {
+    min-height: 44px;
+  }
 }
 
 /* ====== Animations ====== */
@@ -238,10 +245,12 @@ textarea {
 /* ====== Mobile drawer ====== */
 .drawer-overlay {
   opacity: 0;
-  transition: opacity 0.3s ease;
+  background-color: rgba(0, 0, 0, 0);
+  transition: opacity 0.3s ease, background-color 0.3s ease;
 }
 .drawer-overlay.is-open {
   opacity: 1;
+  background-color: rgba(0, 0, 0, 0.5);
 }
 .drawer-panel {
   transform: translateX(100%);

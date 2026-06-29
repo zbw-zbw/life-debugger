@@ -175,7 +175,7 @@ export default function DebugPage() {
                   <button
                     key={template.label}
                     onClick={() => handleSelectTemplate(template.text)}
-                    className="flex-shrink-0 ml-0 first:ml-0 px-3 py-2 rounded-lg border border-[var(--border-default)] bg-[var(--bg-secondary)] text-xs text-[var(--text-secondary)] font-mono transition-all duration-200 hover:border-[var(--green-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)]"
+                    className="flex-shrink-0 ml-0 first:ml-0 px-4 py-2.5 rounded-lg border border-[var(--border-default)] bg-[var(--bg-secondary)] text-xs text-[var(--text-secondary)] font-mono transition-all duration-200 hover:border-[var(--green-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)]"
                   >
                     {template.label}
                   </button>
