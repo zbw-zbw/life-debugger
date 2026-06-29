@@ -47,7 +47,7 @@ export default function BugReportCard({
 
   const StatusIcon = currentStatus.icon;
 
-  const checkInDates = 'checkInDates' in bug ? (bug as { checkInDates?: string[] }).checkInDates ?? [] : [];
+  const checkInDates = bug.checkInDates ?? [];
   const streak = computeStreak(checkInDates);
   const checkedInToday = hasCheckedInToday(checkInDates);
 

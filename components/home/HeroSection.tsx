@@ -14,17 +14,17 @@ const terminalLines = [
     styles: { prefix: '> ', prefixColor: 'var(--green)' },
   },
   {
-    text: '  ✗ 熬夜刷手机死循环 [LIFE-0001] .............. P1 CRITICAL',
+    text: '  ✗ 熬夜刷手机死循环 [LIFE-0001] .............. P1 HIGH',
     styles: {
       highlights: [
         { text: '✗', color: 'var(--red)' },
         { text: '[LIFE-0001]', color: 'var(--blue)' },
-        { text: 'P1 CRITICAL', color: 'var(--severity-p1)' },
+        { text: 'P1 HIGH', color: 'var(--severity-p1)' },
       ],
     },
   },
   {
-    text: '  ✗ 拖延症反复触发 [LIFE-0042] ................ P2 HIGH',
+    text: '  ✗ 拖延症反复触发 [LIFE-0042] .............. P2 HIGH',
     styles: {
       highlights: [
         { text: '✗', color: 'var(--red)' },
@@ -34,17 +34,7 @@ const terminalLines = [
     },
   },
   {
-    text: '  ✗ 立Flag后快速打脸 [LIFE-0099] .............. P2 HIGH',
-    styles: {
-      highlights: [
-        { text: '✗', color: 'var(--red)' },
-        { text: '[LIFE-0099]', color: 'var(--blue)' },
-        { text: 'P2 HIGH', color: 'var(--severity-p2)' },
-      ],
-    },
-  },
-  {
-    text: '  ✗ 无限续杯奶茶依赖 [LIFE-0233] .............. P3 MEDIUM',
+    text: '  ✗ 糖分依赖循环泄漏 [LIFE-0233] .............. P3 MEDIUM',
     styles: {
       highlights: [
         { text: '✗', color: 'var(--red)' },
@@ -54,7 +44,27 @@ const terminalLines = [
     },
   },
   {
-    text: '> 共发现 4 个未修复Bug',
+    text: '  ✗ 情绪内耗后台进程 [LIFE-0512] ............ P3 MEDIUM',
+    styles: {
+      highlights: [
+        { text: '✗', color: 'var(--red)' },
+        { text: '[LIFE-0512]', color: 'var(--blue)' },
+        { text: 'P3 MEDIUM', color: 'var(--severity-p3)' },
+      ],
+    },
+  },
+  {
+    text: '  ✗ 周末计划总是404 [LIFE-0888] .............. P4 LOW',
+    styles: {
+      highlights: [
+        { text: '✗', color: 'var(--yellow)' },
+        { text: '[LIFE-0888]', color: 'var(--blue)' },
+        { text: 'P4 LOW', color: 'var(--severity-p4)' },
+      ],
+    },
+  },
+  {
+    text: '> 共发现 5 个未修复Bug',
     styles: { prefix: '> ', prefixColor: 'var(--green)' },
   },
   {
@@ -131,7 +141,6 @@ export default function HeroSection() {
           </span>
         </div>
       </div>
-
     </section>
   );
 }

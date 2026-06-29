@@ -157,13 +157,6 @@ textarea {
   animation: emoji-float 3s ease-in-out infinite;
 }
 
-/* Button press */
-@keyframes btn-press {
-  0% { transform: scale(1); }
-  50% { transform: scale(0.97); }
-  100% { transform: scale(1); }
-}
-
 /* ====== Scroll reveal ====== */
 .scroll-reveal {
   opacity: 0;

@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { SYSTEM_PROMPT } from '@/lib/prompts';
 import { generateBugReport } from '@/lib/mockGenerator';
+import { BugReport } from '@/types/bug';
 
 // Input validation helper
 function sanitizeInput(input: string): string {
@@ -13,8 +14,7 @@ function sanitizeInput(input: string): string {
 }
 
 // Mock fallback response
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function createMockStream(mockData: any): ReadableStream {
+function createMockStream(mockData: BugReport): ReadableStream {
   const encoder = new TextEncoder();
   const jsonStr = JSON.stringify(mockData);
   // Simulate streaming by sending chunks
