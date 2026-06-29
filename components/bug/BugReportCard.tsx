@@ -53,7 +53,7 @@ export default function BugReportCard({
 
   return (
     <div
-      className={`relative rounded-xl border border-[var(--border-default)] bg-[var(--bg-secondary)] overflow-hidden card-hover ${className}`}
+      className={`relative rounded-xl border border-[var(--border-default)] bg-[var(--bg-secondary)] overflow-hidden ${interactive ? 'card-hover' : ''} ${className}`}
     >
       <div
         className="absolute left-0 top-0 bottom-0 w-1 rounded-l-xl"

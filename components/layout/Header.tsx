@@ -15,6 +15,11 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const drawerRef = useRef<HTMLDivElement>(null);
 
+  const isActive = (path: string) => {
+    if (path === '/') return pathname === '/';
+    return pathname.startsWith(path);
+  };
+
   // Lock body scroll when menu open
   useEffect(() => {
     if (menuOpen) {
@@ -39,7 +44,7 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3" onClick={() => setMenuOpen(false)}>
+          <Link href="/" className={`flex items-center gap-3 transition-opacity duration-150 ${isActive('/') ? 'opacity-100' : 'opacity-80 hover:opacity-100'}`} onClick={() => setMenuOpen(false)}>
             <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-md border border-[var(--border-default)] bg-[var(--bg-secondary)]">
               <div className="flex gap-1">
                 <div className="w-2.5 h-2.5 rounded-full" style={{ background: '#ff5f56' }} />
@@ -57,22 +62,19 @@ export default function Header() {
 
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-6">
-            {navItems.map((item) => {
-              const isActive = pathname === item.path;
-              return (
-                <Link
-                  key={item.path}
-                  href={item.path}
-                  className={`font-mono text-sm transition-colors duration-150 relative pb-1 ${
-                    isActive
-                      ? 'text-[var(--green)] nav-active-indicator'
-                      : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              );
-            })}
+            {navItems.map((item) => (
+              <Link
+                key={item.path}
+                href={item.path}
+                className={`font-mono text-sm transition-colors duration-150 relative pb-1 ${
+                  isActive(item.path)
+                    ? 'text-[var(--green)] nav-active-indicator'
+                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                }`}
+              >
+                {item.label}
+              </Link>
+            ))}
           </nav>
 
           {/* Mobile Hamburger */}
@@ -80,6 +82,7 @@ export default function Header() {
             className="md:hidden flex flex-col items-center justify-center gap-1.5 w-11 h-11 relative z-50"
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="菜单"
+            aria-expanded={menuOpen}
           >
             <span className={`block w-5 h-0.5 bg-[var(--text-primary)] transition-all duration-300 ${menuOpen ? 'rotate-45 translate-y-2' : ''}`} />
             <span className={`block w-5 h-0.5 bg-[var(--text-primary)] transition-all duration-300 ${menuOpen ? 'opacity-0 scale-0' : ''}`} />
@@ -102,24 +105,35 @@ export default function Header() {
         }`}
       >
         <nav className="px-4 py-6">
-          {navItems.map((item) => {
-            const isActive = pathname === item.path;
-            return (
-              <Link
-                key={item.path}
-                href={item.path}
-                onClick={() => setMenuOpen(false)}
-                className={`flex items-center gap-3 font-mono text-sm py-3.5 px-3 rounded-lg transition-colors border-l-2 ${
-                  isActive
-                    ? 'text-[var(--green)] bg-[var(--bg-tertiary)] border-[var(--green)]'
-                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] border-transparent'
-                }`}
-              >
-                <span className="text-[var(--text-tertiary)]">{'>'}</span>
-                <span>{item.label}</span>
-              </Link>
-            );
-          })}
+          {/* Home link in drawer */}
+          <Link
+            href="/"
+            onClick={() => setMenuOpen(false)}
+            className={`flex items-center gap-3 font-mono text-sm py-3.5 px-3 rounded-lg transition-colors border-l-2 mb-1 ${
+              isActive('/')
+                ? 'text-[var(--green)] bg-[var(--bg-tertiary)] border-[var(--green)]'
+                : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] border-transparent'
+            }`}
+          >
+            <span className="text-[var(--text-tertiary)]">{'>'}</span>
+            <span>~</span>
+            <span className="text-[var(--text-tertiary)] text-xs">首页</span>
+          </Link>
+          {navItems.map((item) => (
+            <Link
+              key={item.path}
+              href={item.path}
+              onClick={() => setMenuOpen(false)}
+              className={`flex items-center gap-3 font-mono text-sm py-3.5 px-3 rounded-lg transition-colors border-l-2 ${
+                isActive(item.path)
+                  ? 'text-[var(--green)] bg-[var(--bg-tertiary)] border-[var(--green)]'
+                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] border-transparent'
+              }`}
+            >
+              <span className="text-[var(--text-tertiary)]">{'>'}</span>
+              <span>{item.label}</span>
+            </Link>
+          ))}
         </nav>
       </div>
     </header>

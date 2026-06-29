@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { MOCK_ACHIEVEMENTS, RARITY_CONFIG } from '@/lib/mockData';
 import { Achievement } from '@/lib/mockData';
 import { useBugStore } from '@/hooks/useBugStore';
@@ -226,7 +227,13 @@ export default function AchievementsPage() {
         {loaded && filteredAchievements.length === 0 && (
           <div className="text-center py-12">
             <MedalIcon className="mx-auto mb-3 text-[var(--text-tertiary)]" size={40} />
-            <p className="text-[var(--text-secondary)]">该分类下暂无成就</p>
+            <p className="text-[var(--text-secondary)] mb-4">该分类下暂无成就</p>
+            <Link
+              href="/debug"
+              className="btn-primary inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[var(--purple)] text-white font-mono font-bold text-sm transition-all duration-200 hover:shadow-[0_0_20px_rgba(139,92,246,0.3)]"
+            >
+              $ 去诊断解锁成就
+            </Link>
           </div>
         )}
       </div>

@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useScrollReveal, getScrollRevealStyle } from '@/hooks/useScrollReveal';
 import { SearchIcon, WrenchIcon, ShareIcon, TrophyIcon } from '@/components/ui/Icon';
 
@@ -10,6 +11,7 @@ interface Feature {
   description: string;
   tags: string[];
   hoverColor: string;
+  href: string;
 }
 
 const features: Feature[] = [
@@ -20,6 +22,7 @@ const features: Feature[] = [
     description: '用自然语言描述你的烦恼，AI 自动生成结构化 Bug Report，包含根因分析和修复方案',
     tags: ['AI 驱动', '流式诊断'],
     hoverColor: 'var(--green)',
+    href: '/debug',
   },
   {
     number: '02',
@@ -28,6 +31,7 @@ const features: Feature[] = [
     description: '选择修复方案，每日打卡记录 streak，数据可视化追踪你的修复进度',
     tags: ['打卡 streak', '可视化'],
     hoverColor: 'var(--blue)',
+    href: '/history',
   },
   {
     number: '03',
@@ -36,6 +40,7 @@ const features: Feature[] = [
     description: '将你的 Bug Report 一键分享给朋友，看看谁也有同样的"人生 Bug"',
     tags: ['Web Share', '社交'],
     hoverColor: 'var(--orange)',
+    href: '/debug',
   },
   {
     number: '04',
@@ -44,16 +49,18 @@ const features: Feature[] = [
     description: '诊断、修复、打卡解锁程序员风格成就徽章，见证每一步成长',
     tags: ['游戏化', '激励'],
     hoverColor: 'var(--purple)',
+    href: '/achievements',
   },
 ];
 
 function FeatureCard({ feature, index }: { feature: Feature; index: number }) {
-  const { ref, isVisible } = useScrollReveal<HTMLDivElement>();
+  const { ref, isVisible } = useScrollReveal<HTMLAnchorElement>();
 
   return (
-    <div
+    <Link
       ref={ref}
-      className={`relative p-5 sm:p-6 rounded-xl border border-[var(--border-default)] bg-[var(--bg-secondary)] card-hover group overflow-hidden transition-all duration-600 ${
+      href={feature.href}
+      className={`relative block p-5 sm:p-6 rounded-xl border border-[var(--border-default)] bg-[var(--bg-secondary)] card-hover group overflow-hidden transition-all duration-600 ${
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-[30px]'
       }`}
       style={getScrollRevealStyle({ direction: 'up', delay: index * 100 })}
@@ -74,18 +81,23 @@ function FeatureCard({ feature, index }: { feature: Feature; index: number }) {
         <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-4">
           {feature.description}
         </p>
-        <div className="flex flex-wrap gap-2">
-          {feature.tags.map((tag) => (
-            <span
-              key={tag}
-              className="px-2 py-0.5 text-[10px] font-mono rounded-md border border-[var(--border-default)] text-[var(--text-tertiary)]"
-            >
-              {tag}
-            </span>
-          ))}
+        <div className="flex items-center justify-between">
+          <div className="flex flex-wrap gap-2">
+            {feature.tags.map((tag) => (
+              <span
+                key={tag}
+                className="px-2 py-0.5 text-[10px] font-mono rounded-md border border-[var(--border-default)] text-[var(--text-tertiary)]"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+          <span className="font-mono text-xs text-[var(--text-tertiary)] opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            {'->'}
+          </span>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
 

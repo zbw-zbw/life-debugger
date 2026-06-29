@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import Link from 'next/link';
 import { useBugDiagnosis } from '@/hooks/useBugDiagnosis';
 import { QUICK_TEMPLATES } from '@/lib/mockGenerator';
 import AnalysisProcess from '@/components/debug/AnalysisProcess';
@@ -46,13 +47,14 @@ export default function DebugPage() {
     setInput('');
     setSaved(false);
     reset();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleSave = () => {
     if (!bugReport || saved) return;
     saveBug(bugReport, input);
     setSaved(true);
-    showToast('success', 'Bug Report 已保存，前往 ~/history 查看');
+    showToast('success', 'Bug Report 已保存');
   };
 
   const handleShare = async () => {
@@ -215,6 +217,7 @@ export default function DebugPage() {
               </div>
             )}
 
+            {/* Action Buttons */}
             <div className="flex flex-wrap gap-3 justify-center">
               <button
                 onClick={handleReset}
@@ -228,7 +231,7 @@ export default function DebugPage() {
                 disabled={saved}
                 className={`btn-primary inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-mono font-bold text-sm transition-all duration-300 ${
                   saved
-                    ? 'border border-[var(--green)] text-[var(--green)] opacity-50 cursor-default'
+                    ? 'bg-[var(--green)]/10 border border-[var(--green)] text-[var(--green)] cursor-default'
                     : 'bg-[var(--green)] text-[var(--bg-primary)] hover:shadow-[0_0_20px_rgba(57,211,83,0.3)]'
                 }`}
               >
@@ -241,6 +244,20 @@ export default function DebugPage() {
                 <span>$ share</span>
               </button>
             </div>
+
+            {/* Post-save navigation guide */}
+            {saved && (
+              <div className="animate-fade-in-up text-center">
+                <Link
+                  href="/history"
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-default)] text-[var(--text-secondary)] font-mono text-sm transition-all duration-200 hover:border-[var(--green)] hover:text-[var(--green)]"
+                >
+                  <span>{'->'}</span>
+                  <span>cd ~/history</span>
+                  <span className="text-[var(--text-tertiary)]">查看你的 Bug 档案</span>
+                </Link>
+              </div>
+            )}
           </div>
         )}
 
