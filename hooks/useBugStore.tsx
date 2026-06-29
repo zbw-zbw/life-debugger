@@ -62,8 +62,8 @@ function checkAchievements(bugs: StoredBug[]): UnlockedAchievement[] {
   const totalBugs = bugs.length;
   const resolvedBugs = bugs.filter(b => b.status === 'RESOLVED');
   const bugsWithPatch = bugs.filter(b => b.selectedPatchId !== null);
-  const maxStreak = bugs.reduce((max, b) => Math.max(max, computeStreak(b.checkInDates)), 0);
-  const totalCheckIns = bugs.reduce((sum, b) => sum + b.checkInDates.length, 0);
+  const maxStreak = bugs.reduce((max, b) => Math.max(max, computeStreak(b.checkInDates ?? [])), 0);
+  const totalCheckIns = bugs.reduce((sum, b) => sum + (b.checkInDates?.length ?? 0), 0);
 
   if (totalBugs >= 1) tryUnlock('first-bug');
   if (totalBugs >= 3) tryUnlock('debugger');
@@ -104,10 +104,15 @@ function mergeAchievements(
 
 function initializeStore(): BugStoreData {
   const stored = loadStore();
-  const detected = checkAchievements(stored.bugs);
-  const merged = mergeAchievements(stored.unlockedAchievements, detected);
-  const initialized = { ...stored, unlockedAchievements: merged.achievements };
-  if (merged.newOnes.length > 0) {
+  // Migrate old bugs that lack checkInDates
+  const migrated = {
+    ...stored,
+    bugs: stored.bugs.map(b => b.checkInDates ? b : { ...b, checkInDates: [] }),
+  };
+  const detected = checkAchievements(migrated.bugs);
+  const merged = mergeAchievements(migrated.unlockedAchievements, detected);
+  const initialized = { ...migrated, unlockedAchievements: merged.achievements };
+  if (merged.newOnes.length > 0 || stored.bugs !== migrated.bugs) {
     saveStore(initialized);
   }
   return initialized;
