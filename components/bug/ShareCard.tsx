@@ -6,9 +6,9 @@ function generateShareText(bug: BugReport): string {
 
 function generateShareUrl(): string {
   if (typeof window !== 'undefined') {
-    return window.location.origin;
+    return process.env.NEXT_PUBLIC_BASE_URL || window.location.origin;
   }
-  return 'https://life-debugger.vercel.app';
+  return process.env.NEXT_PUBLIC_BASE_URL || 'https://life-debugger.vercel.app';
 }
 
 export type ShareResult = 'shared' | 'copied' | 'failed';

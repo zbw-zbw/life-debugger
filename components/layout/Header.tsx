@@ -51,7 +51,7 @@ export default function Header() {
               人生Debug器
             </span>
             <span className="hidden sm:inline-flex px-1.5 py-0.5 text-[10px] font-mono text-[var(--text-tertiary)] border border-[var(--border-default)] rounded-md">
-              v1.0.0-beta
+              v0.1.0
             </span>
           </Link>
 

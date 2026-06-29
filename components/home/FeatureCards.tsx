@@ -1,7 +1,7 @@
 'use client';
 
 import { useScrollReveal, getScrollRevealStyle } from '@/hooks/useScrollReveal';
-import { SearchIcon, WrenchIcon, GlobeIcon, TrophyIcon } from '@/components/ui/Icon';
+import { SearchIcon, WrenchIcon, ShareIcon, TrophyIcon } from '@/components/ui/Icon';
 
 interface Feature {
   number: string;
@@ -17,31 +17,31 @@ const features: Feature[] = [
     number: '01',
     icon: SearchIcon,
     title: 'Bug 诊断',
-    description: '用自然语言描述你的烦恼，AI 自动生成结构化 Bug Report',
-    tags: ['核心功能', 'AI 驱动'],
+    description: '用自然语言描述你的烦恼，AI 自动生成结构化 Bug Report，包含根因分析和修复方案',
+    tags: ['AI 驱动', '流式诊断'],
     hoverColor: 'var(--green)',
   },
   {
     number: '02',
     icon: WrenchIcon,
     title: '修复追踪',
-    description: '选择修复方案，每日签到记录进度，数据可视化追踪',
-    tags: ['进度管理', '习惯养成'],
+    description: '选择修复方案，每日打卡记录 streak，数据可视化追踪你的修复进度',
+    tags: ['打卡 streak', '可视化'],
     hoverColor: 'var(--blue)',
   },
   {
     number: '03',
-    icon: GlobeIcon,
-    title: 'Bug 图鉴',
-    description: '浏览社区热门人生 Bug，"我也有这个Bug"一键共鸣',
-    tags: ['社区', '共鸣'],
+    icon: ShareIcon,
+    title: '诊断分享',
+    description: '将你的 Bug Report 一键分享给朋友，看看谁也有同样的"人生 Bug"',
+    tags: ['Web Share', '社交'],
     hoverColor: 'var(--orange)',
   },
   {
     number: '04',
     icon: TrophyIcon,
     title: '成就系统',
-    description: '修复 Bug 解锁程序员风格成就，收集你的人生 Patch 徽章',
+    description: '诊断、修复、打卡解锁程序员风格成就徽章，见证每一步成长',
     tags: ['游戏化', '激励'],
     hoverColor: 'var(--purple)',
   },
