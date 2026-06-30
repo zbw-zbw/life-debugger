@@ -164,12 +164,33 @@ export default function BugReportCard({
 
         {interactive && bug.status === 'FIXING' && (
           <div className="pt-2 space-y-3">
+            {/* Progress bar */}
+            <div className="rounded-lg border border-[var(--border-default)] bg-[var(--bg-tertiary)] px-4 py-3 space-y-2">
+              <div className="flex items-center justify-between text-xs font-mono">
+                <div className="flex items-center gap-2 text-[var(--text-secondary)]">
+                  <CalendarIcon size={14} className="text-[var(--blue)]" />
+                  <span>修复进度</span>
+                </div>
+                <span className="text-[var(--text-tertiary)]">
+                  {checkInDates.length}/{bug.fixDays} 天
+                </span>
+              </div>
+              <div className="w-full h-2 rounded-full bg-[var(--bg-primary)] overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all duration-500"
+                  style={{
+                    width: `${Math.min((checkInDates.length / bug.fixDays) * 100, 100)}%`,
+                    backgroundColor: checkInDates.length >= bug.fixDays ? 'var(--green)' : 'var(--blue)',
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Streak + check-in */}
             <div className="flex items-center justify-between rounded-lg border border-[var(--border-default)] bg-[var(--bg-tertiary)] px-4 py-3">
               <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
-                <CalendarIcon size={16} className="text-[var(--blue)]" />
-                <span>连续打卡</span>
                 <span className="font-mono font-bold text-[var(--blue)]">{streak}</span>
-                <span>天</span>
+                <span>天连续打卡</span>
               </div>
               <button
                 onClick={onCheckIn}

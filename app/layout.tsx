@@ -17,6 +17,15 @@ function ScrollToTop() {
   return null;
 }
 
+function PageTransition({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  return (
+    <div key={pathname} className="animate-fade-in-up">
+      {children}
+    </div>
+  );
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -29,7 +38,9 @@ export default function RootLayout({
         <BugStoreProvider>
           <ScrollToTop />
           <Header />
-          <main className="flex-1">{children}</main>
+          <main className="flex-1">
+            <PageTransition>{children}</PageTransition>
+          </main>
           <Footer />
           <AchievementToast />
         </BugStoreProvider>

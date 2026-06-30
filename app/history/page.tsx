@@ -7,6 +7,7 @@ import BugReportCard from '@/components/bug/BugReportCard';
 import SeverityBadge from '@/components/ui/SeverityBadge';
 import Toast, { ToastData } from '@/components/ui/Toast';
 import StatsCharts from '@/components/history/StatsCharts';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { useToastId } from '@/hooks/useToastId';
 import { AlertIcon, WrenchIcon, CheckIcon, ClipboardIcon, BugIcon, ChevronDownIcon, ChevronUpIcon } from '@/components/ui/Icon';
 
@@ -49,6 +50,7 @@ export default function HistoryPage() {
   const [filter, setFilter] = useState<FilterStatus>('ALL');
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastData | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null);
   const nextToastId = useToastId();
 
   const filteredBugs = filter === 'ALL'
@@ -60,11 +62,15 @@ export default function HistoryPage() {
   }, [nextToastId]);
 
   const handleDelete = (bugId: string, title: string) => {
-    if (window.confirm(`确定要删除 Bug「${title}」吗？此操作不可撤销。`)) {
-      deleteBug(bugId);
-      if (expandedId === bugId) setExpandedId(null);
-      showToast('info', `Bug「${title}」已删除`);
-    }
+    setDeleteTarget({ id: bugId, title });
+  };
+
+  const confirmDelete = () => {
+    if (!deleteTarget) return;
+    deleteBug(deleteTarget.id);
+    if (expandedId === deleteTarget.id) setExpandedId(null);
+    showToast('info', `Bug「${deleteTarget.title}」已删除`);
+    setDeleteTarget(null);
   };
 
   const handleSelectPatch = (bugId: string, patchId: string, patchName: string) => {
@@ -116,6 +122,18 @@ export default function HistoryPage() {
     <div className="min-h-screen pt-20 pb-16 px-4">
       <div className="max-w-4xl mx-auto">
         {toast && <Toast toast={toast} onClose={() => setToast(null)} />}
+
+        {/* Delete Confirm Dialog */}
+        <ConfirmDialog
+          open={deleteTarget !== null}
+          title="确认删除"
+          message={deleteTarget ? `确定要删除 Bug「${deleteTarget.title}」吗？此操作不可撤销。` : ''}
+          confirmLabel="rm -rf"
+          cancelLabel="cancel"
+          variant="danger"
+          onConfirm={confirmDelete}
+          onCancel={() => setDeleteTarget(null)}
+        />
 
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">

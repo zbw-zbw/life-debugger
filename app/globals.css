@@ -309,6 +309,17 @@ button:focus-visible {
   border-radius: 4px;
 }
 
+/* ====== Native dialog reset ====== */
+dialog {
+  border: none;
+  padding: 0;
+  max-height: 85vh;
+  overflow: auto;
+}
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.5);
+}
+
 /* ====== AI Generated gradient badge ====== */
 .ai-badge {
   background: linear-gradient(135deg, rgba(188, 140, 255, 0.15), rgba(88, 166, 255, 0.15));
