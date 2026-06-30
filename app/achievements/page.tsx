@@ -172,10 +172,10 @@ export default function AchievementsPage() {
             <button
               key={category}
               onClick={() => setFilter(category)}
-              className={`btn-primary px-4 py-2.5 rounded-lg text-sm font-mono transition-all duration-200 ${
+              className={`btn-primary px-4 py-2.5 rounded-lg text-sm font-mono transition-all duration-200 border ${
                 filter === category
-                  ? 'bg-[var(--bg-elevated)] text-[var(--text-primary)] border border-[var(--border-default)]'
-                  : 'text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'
+                  ? 'bg-[var(--bg-elevated)] text-[var(--text-primary)] border-[var(--border-default)]'
+                  : 'text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] border-transparent'
               }`}
             >
               {category === 'ALL' ? '全部' : category}

@@ -55,9 +55,6 @@ export default function Header() {
             <span className="font-mono text-lg font-bold text-[var(--green)]">
               人生Debug器
             </span>
-            <span className="hidden sm:inline-flex px-1.5 py-0.5 text-[10px] font-mono text-[var(--text-tertiary)] border border-[var(--border-default)] rounded-md">
-              v0.1.0
-            </span>
           </Link>
 
           {/* Desktop Nav */}
@@ -79,7 +76,7 @@ export default function Header() {
 
           {/* Mobile Hamburger */}
           <button
-            className="md:hidden flex flex-col items-center justify-center gap-1.5 w-11 h-11 relative z-50"
+            className="md:hidden flex flex-col items-center justify-center gap-1.5 w-11 h-11 relative z-50 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-default)]"
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="菜单"
             aria-expanded={menuOpen}

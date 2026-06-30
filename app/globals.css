@@ -328,8 +328,13 @@ dialog::backdrop {
 
 /* ====== Template scroll fade ====== */
 .template-scroll {
-  -webkit-mask-image: linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent);
-  mask-image: linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent);
+  -webkit-mask-image: linear-gradient(to right, black 8px, black calc(100% - 32px), transparent);
+  mask-image: linear-gradient(to right, black 8px, black calc(100% - 32px), transparent);
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.template-scroll::-webkit-scrollbar {
+  display: none;
 }
 
 /* ====== Achievement toast entrance ====== */

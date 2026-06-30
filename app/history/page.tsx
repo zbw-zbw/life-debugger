@@ -143,7 +143,7 @@ export default function HistoryPage() {
         />
 
         {/* Page Header */}
-        <div className="mb-8 flex items-start justify-between gap-4">
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
           <div>
             <div className="flex items-center gap-3 mb-2">
               <div className="w-1 h-6 bg-[var(--blue)] rounded-full" />
@@ -151,10 +151,12 @@ export default function HistoryPage() {
             </div>
             <p className="text-[var(--text-secondary)] pl-4 text-sm sm:text-base">查看和管理你的人生 Bug 档案</p>
           </div>
-          <DataManager
-            data={exportData()}
-            onImport={importData}
-          />
+          <div className="sm:self-start">
+            <DataManager
+              data={exportData()}
+              onImport={importData}
+            />
+          </div>
         </div>
 
         {/* Stats Cards */}
