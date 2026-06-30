@@ -1,15 +1,18 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { useBugStore } from '@/hooks/useBugStore';
 import BugReportCard from '@/components/bug/BugReportCard';
 import SeverityBadge from '@/components/ui/SeverityBadge';
 import Toast, { ToastData } from '@/components/ui/Toast';
 import StatsCharts from '@/components/history/StatsCharts';
+import CheckinHeatmap from '@/components/history/CheckinHeatmap';
+import DataManager from '@/components/history/DataManager';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
+import { searchBugs } from '@/lib/search';
 import { useToastId } from '@/hooks/useToastId';
-import { AlertIcon, WrenchIcon, CheckIcon, ClipboardIcon, BugIcon, ChevronDownIcon, ChevronUpIcon } from '@/components/ui/Icon';
+import { AlertIcon, WrenchIcon, CheckIcon, ClipboardIcon, BugIcon, ChevronDownIcon, ChevronUpIcon, SearchIcon, CloseIcon } from '@/components/ui/Icon';
 
 type FilterStatus = 'ALL' | 'OPEN' | 'FIXING' | 'RESOLVED';
 
@@ -18,6 +21,8 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.
   FIXING: { label: 'FIXING', color: 'var(--blue)', icon: WrenchIcon, bgColor: 'rgba(88,166,255,0.1)' },
   RESOLVED: { label: 'RESOLVED', color: 'var(--green)', icon: CheckIcon, bgColor: 'rgba(57,211,83,0.1)' },
 };
+
+const SEVERITY_OPTIONS = ['ALL', 'P0', 'P1', 'P2', 'P3', 'P4'];
 
 function formatDisplayDate(dateStr: string): string {
   if (!dateStr) return '';
@@ -46,16 +51,18 @@ function SkeletonCard() {
 }
 
 export default function HistoryPage() {
-  const { bugs, stats, loaded, deleteBug, selectPatch, resolveBug, checkIn } = useBugStore();
+  const { bugs, stats, loaded, deleteBug, selectPatch, resolveBug, checkIn, importData, exportData } = useBugStore();
   const [filter, setFilter] = useState<FilterStatus>('ALL');
+  const [severityFilter, setSeverityFilter] = useState('ALL');
+  const [searchQuery, setSearchQuery] = useState('');
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastData | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null);
   const nextToastId = useToastId();
 
-  const filteredBugs = filter === 'ALL'
-    ? bugs
-    : bugs.filter(bug => bug.status === filter);
+  const filteredBugs = useMemo(() => {
+    return searchBugs(bugs, searchQuery, filter, severityFilter);
+  }, [bugs, searchQuery, filter, severityFilter]);
 
   const showToast = useCallback((type: ToastData['type'], message: string) => {
     setToast({ id: nextToastId(), type, message });
@@ -135,12 +142,19 @@ export default function HistoryPage() {
           onCancel={() => setDeleteTarget(null)}
         />
 
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-1 h-6 bg-[var(--blue)] rounded-full" />
-            <h1 className="text-xl sm:text-3xl font-bold text-[var(--text-primary)]">Bug 历史</h1>
+        {/* Page Header */}
+        <div className="mb-8 flex items-start justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-1 h-6 bg-[var(--blue)] rounded-full" />
+              <h1 className="text-xl sm:text-3xl font-bold text-[var(--text-primary)]">Bug 历史</h1>
+            </div>
+            <p className="text-[var(--text-secondary)] pl-4 text-sm sm:text-base">查看和管理你的人生 Bug 档案</p>
           </div>
-          <p className="text-[var(--text-secondary)] pl-4 text-sm sm:text-base">查看和管理你的人生 Bug 档案</p>
+          <DataManager
+            data={exportData()}
+            onImport={importData}
+          />
         </div>
 
         {/* Stats Cards */}
@@ -161,21 +175,72 @@ export default function HistoryPage() {
         {/* Data Visualization Charts */}
         <StatsCharts />
 
-        {/* Filters */}
-        <div className="flex flex-wrap gap-2 mb-6">
-          {(['ALL', 'OPEN', 'FIXING', 'RESOLVED'] as FilterStatus[]).map((status) => (
-            <button
-              key={status}
-              onClick={() => setFilter(status)}
-              className={`btn-primary px-4 py-2.5 rounded-lg text-sm font-mono transition-all duration-200 ${
-                filter === status
-                  ? 'bg-[var(--bg-elevated)] text-[var(--text-primary)] border border-[var(--border-default)]'
-                  : 'text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'
-              }`}
-            >
-              {status === 'ALL' ? '全部' : status}
-            </button>
-          ))}
+        {/* Check-in Heatmap */}
+        <div className="mb-8">
+          <CheckinHeatmap />
+        </div>
+
+        {/* Search + Filters */}
+        <div className="space-y-3 mb-6">
+          {/* Search Bar */}
+          <div className="relative">
+            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]" size={16} />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="搜索 Bug 标题、描述、影响领域..."
+              className="w-full pl-10 pr-9 py-2.5 rounded-lg border border-[var(--border-default)] bg-[var(--bg-secondary)] font-mono text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] input-focus-glow transition-all duration-200"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] transition-colors"
+              >
+                <CloseIcon size={14} />
+              </button>
+            )}
+          </div>
+
+          {/* Filter Row */}
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Status filters */}
+            <div className="flex flex-wrap gap-1.5">
+              {(['ALL', 'OPEN', 'FIXING', 'RESOLVED'] as FilterStatus[]).map((status) => (
+                <button
+                  key={status}
+                  onClick={() => setFilter(status)}
+                  className={`btn-primary px-3 py-1.5 rounded-lg text-xs font-mono transition-all duration-200 ${
+                    filter === status
+                      ? 'bg-[var(--bg-elevated)] text-[var(--text-primary)] border border-[var(--border-default)]'
+                      : 'text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'
+                  }`}
+                >
+                  {status === 'ALL' ? '全部' : status}
+                </button>
+              ))}
+            </div>
+
+            {/* Divider */}
+            <div className="w-px h-5 bg-[var(--border-default)] hidden sm:block" />
+
+            {/* Severity filters */}
+            <div className="flex flex-wrap gap-1.5">
+              {SEVERITY_OPTIONS.map((sev) => (
+                <button
+                  key={sev}
+                  onClick={() => setSeverityFilter(sev)}
+                  className={`btn-primary px-3 py-1.5 rounded-lg text-xs font-mono transition-all duration-200 ${
+                    severityFilter === sev
+                      ? 'bg-[var(--bg-elevated)] text-[var(--text-primary)] border border-[var(--border-default)]'
+                      : 'text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'
+                  }`}
+                >
+                  {sev === 'ALL' ? '全部等级' : sev}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Bug List */}
@@ -260,13 +325,13 @@ export default function HistoryPage() {
                   <div className="expand-inner">
                     <div className="p-4 sm:p-5 bg-[var(--bg-primary)]/50">
                       <BugReportCard
-                      bug={bug}
-                      interactive={true}
-                      selectedPatchId={bug.selectedPatchId}
-                      onSelectPatch={(patchId, patchName) => handleSelectPatch(bug.id, patchId, patchName)}
-                      onResolve={() => handleResolve(bug.id)}
-                      onCheckIn={() => handleCheckIn(bug.id)}
-                    />
+                        bug={bug}
+                        interactive={true}
+                        selectedPatchId={bug.selectedPatchId}
+                        onSelectPatch={(patchId, patchName) => handleSelectPatch(bug.id, patchId, patchName)}
+                        onResolve={() => handleResolve(bug.id)}
+                        onCheckIn={() => handleCheckIn(bug.id)}
+                      />
                     </div>
                   </div>
                 </div>
@@ -300,7 +365,15 @@ export default function HistoryPage() {
                   <div className="mb-3 flex justify-center text-[var(--text-tertiary)]">
                     <ClipboardIcon size={40} />
                   </div>
-                  <p className="text-[var(--text-secondary)]">该状态下暂无 Bug 记录</p>
+                  <p className="text-[var(--text-secondary)] mb-2">没有匹配的 Bug</p>
+                  {(searchQuery || severityFilter !== 'ALL') && (
+                    <button
+                      onClick={() => { setSearchQuery(''); setSeverityFilter('ALL'); }}
+                      className="btn-primary text-xs font-mono text-[var(--blue)] hover:text-[var(--green)] transition-colors"
+                    >
+                      清除筛选条件
+                    </button>
+                  )}
                 </>
               )}
             </div>

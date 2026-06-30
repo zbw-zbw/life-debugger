@@ -17,7 +17,7 @@ export interface UnlockedAchievement {
   unlockedAt: string;
 }
 
-interface BugStoreData {
+export interface BugStoreData {
   bugs: StoredBug[];
   unlockedAchievements: UnlockedAchievement[];
 }
@@ -90,13 +90,13 @@ function checkAchievements(bugs: StoredBug[]): UnlockedAchievement[] {
 function mergeAchievements(
   existing: UnlockedAchievement[],
   detected: UnlockedAchievement[]
-): { achievements: UnlockedAchievement[]; newOnes: UnlockedAchievement[] } {
+): { achievements: UnlockedAchievement[]; newOnes: string[] } {
   const map = new Map(existing.map(a => [a.id, a]));
-  const newOnes: UnlockedAchievement[] = [];
+  const newOnes: string[] = [];
   detected.forEach(a => {
     if (!map.has(a.id)) {
       map.set(a.id, a);
-      newOnes.push(a);
+      newOnes.push(a.id);
     }
   });
   return { achievements: Array.from(map.values()), newOnes };
@@ -124,7 +124,8 @@ type Action =
   | { type: 'SELECT_PATCH'; bugId: string; patchId: string; patchName: string }
   | { type: 'RESOLVE_BUG'; bugId: string }
   | { type: 'CHECK_IN'; bugId: string }
-  | { type: 'SHIFT_NEWLY_UNLOCKED' };
+  | { type: 'SHIFT_NEWLY_UNLOCKED' }
+  | { type: 'IMPORT_DATA'; data: BugStoreData };
 
 interface State extends BugStoreData {
   newlyUnlocked: string[];
@@ -138,7 +139,7 @@ function computeNextState(prev: State, nextData: BugStoreData): State {
   return {
     ...updated,
     newlyUnlocked: merged.newOnes.length > 0
-      ? [...prev.newlyUnlocked, ...merged.newOnes.map(a => a.id)]
+      ? [...prev.newlyUnlocked, ...merged.newOnes]
       : prev.newlyUnlocked,
   };
 }
@@ -193,6 +194,17 @@ function reducer(prev: State, action: Action): State {
     }
     case 'SHIFT_NEWLY_UNLOCKED':
       return { ...prev, newlyUnlocked: prev.newlyUnlocked.slice(1) };
+    case 'IMPORT_DATA': {
+      const migrated = {
+        ...action.data,
+        bugs: action.data.bugs.map(b => b.checkInDates ? b : { ...b, checkInDates: [] }),
+      };
+      const detected = checkAchievements(migrated.bugs);
+      const merged = mergeAchievements(migrated.unlockedAchievements, detected);
+      const result = { ...migrated, unlockedAchievements: merged.achievements, newlyUnlocked: merged.newOnes };
+      saveStore(result);
+      return result;
+    }
     default:
       return prev;
   }
@@ -213,6 +225,8 @@ interface BugStoreContextValue {
   resolveBug: (bugId: string) => void;
   checkIn: (bugId: string) => void;
   getBugById: (bugId: string) => StoredBug | undefined;
+  importData: (data: BugStoreData) => void;
+  exportData: () => BugStoreData;
 }
 
 const BugStoreContext = createContext<BugStoreContextValue | null>(null);
@@ -252,6 +266,17 @@ export function BugStoreProvider({ children }: { children: ReactNode }) {
   const checkIn = useCallback((bugId: string) => {
     dispatch({ type: 'CHECK_IN', bugId });
   }, []);
+
+  const importData = useCallback((data: BugStoreData) => {
+    dispatch({ type: 'IMPORT_DATA', data });
+  }, []);
+
+  const exportData = useCallback((): BugStoreData => {
+    return {
+      bugs: state.bugs,
+      unlockedAchievements: state.unlockedAchievements,
+    };
+  }, [state.bugs, state.unlockedAchievements]);
 
   const getBugById = useCallback((bugId: string): StoredBug | undefined => {
     return state.bugs.find(b => b.id === bugId);
@@ -294,6 +319,8 @@ export function BugStoreProvider({ children }: { children: ReactNode }) {
     resolveBug,
     checkIn,
     getBugById,
+    importData,
+    exportData,
   };
 
   return <BugStoreContext.Provider value={value}>{children}</BugStoreContext.Provider>;
