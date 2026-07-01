@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import ThemeToggle from './ThemeToggle';
 
 const navItems = [
   { path: '/debug', label: '~/debug' },
@@ -57,34 +58,40 @@ export default function Header() {
             </span>
           </Link>
 
-          {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-6">
-            {navItems.map((item) => (
-              <Link
-                key={item.path}
-                href={item.path}
-                className={`font-mono text-sm transition-colors duration-150 relative pb-1 ${
-                  isActive(item.path)
-                    ? 'text-[var(--green)] nav-active-indicator'
-                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
+          {/* Desktop Nav + Theme Toggle */}
+          <div className="hidden md:flex items-center gap-4">
+            <nav className="flex items-center gap-6">
+              {navItems.map((item) => (
+                <Link
+                  key={item.path}
+                  href={item.path}
+                  className={`font-mono text-sm transition-colors duration-150 relative pb-1 ${
+                    isActive(item.path)
+                      ? 'text-[var(--green)] nav-active-indicator'
+                      : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+            <ThemeToggle />
+          </div>
 
-          {/* Mobile Hamburger */}
-          <button
-            className="md:hidden flex flex-col items-center justify-center gap-1.5 w-11 h-11 relative z-50 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-default)]"
-            onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="菜单"
-            aria-expanded={menuOpen}
-          >
-            <span className={`block w-5 h-0.5 bg-[var(--text-primary)] transition-all duration-300 ${menuOpen ? 'rotate-45 translate-y-2' : ''}`} />
-            <span className={`block w-5 h-0.5 bg-[var(--text-primary)] transition-all duration-300 ${menuOpen ? 'opacity-0 scale-0' : ''}`} />
-            <span className={`block w-5 h-0.5 bg-[var(--text-primary)] transition-all duration-300 ${menuOpen ? '-rotate-45 -translate-y-2' : ''}`} />
-          </button>
+          {/* Mobile: Theme Toggle + Hamburger */}
+          <div className="md:hidden flex items-center gap-2">
+            <ThemeToggle />
+            <button
+              className="flex flex-col items-center justify-center gap-1.5 w-11 h-11 relative z-50 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-default)]"
+              onClick={() => setMenuOpen(!menuOpen)}
+              aria-label="菜单"
+              aria-expanded={menuOpen}
+            >
+              <span className={`block w-5 h-0.5 bg-[var(--text-primary)] transition-all duration-300 ${menuOpen ? 'rotate-45 translate-y-2' : ''}`} />
+              <span className={`block w-5 h-0.5 bg-[var(--text-primary)] transition-all duration-300 ${menuOpen ? 'opacity-0 scale-0' : ''}`} />
+              <span className={`block w-5 h-0.5 bg-[var(--text-primary)] transition-all duration-300 ${menuOpen ? '-rotate-45 -translate-y-2' : ''}`} />
+            </button>
+          </div>
         </div>
       </div>
 

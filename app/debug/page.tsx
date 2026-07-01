@@ -190,7 +190,7 @@ export default function DebugPage() {
         {/* Analyzing Phase */}
         {phase === 'analyzing' && (
           <div className="animate-fade-in-up">
-            <AnalysisProcess streamingText={streamingText} />
+            <AnalysisProcess streamingText={streamingText} onCancel={handleReset} />
           </div>
         )}
 

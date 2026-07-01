@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useReducer, useRef } from 'react';
+import { useEffect, useReducer, useRef, useState } from 'react';
 import { ANALYSIS_STEPS } from '@/lib/mockGenerator';
 
 interface AnalysisProcessProps {
   streamingText?: string;
+  onCancel?: () => void;
 }
 
 interface State {
@@ -43,7 +44,7 @@ function reducer(state: State, action: Action): State {
   }
 }
 
-export default function AnalysisProcess({ streamingText = '' }: AnalysisProcessProps) {
+export default function AnalysisProcess({ streamingText = '', onCancel }: AnalysisProcessProps) {
   const [state, dispatch] = useReducer(reducer, {
     currentStep: 0,
     displayedSteps: [],
@@ -52,9 +53,24 @@ export default function AnalysisProcess({ streamingText = '' }: AnalysisProcessP
     cpuUsage: 72,
     memUsage: 2.1,
   });
+  const [elapsed, setElapsed] = useState(0);
+  const startTimeRef = useRef(0);
+
+  // Initialize start time in effect (not during render)
+  useEffect(() => {
+    startTimeRef.current = Date.now();
+  }, []);
 
   const { currentStep, displayedSteps, progress, animationDone, cpuUsage, memUsage } = state;
   const stepRef = useRef(0);
+
+  // Elapsed time timer
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setElapsed(Math.floor((Date.now() - startTimeRef.current) / 1000));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -133,6 +149,10 @@ export default function AnalysisProcess({ streamingText = '' }: AnalysisProcessP
         <span className="ml-2 text-xs font-mono text-[var(--text-tertiary)]">
           AI Diagnostic Engine
         </span>
+        {/* Elapsed time */}
+        <span className="ml-auto text-[10px] font-mono text-[var(--text-tertiary)]">
+          ⏱ {elapsed}s
+        </span>
       </div>
       <div className="p-4 sm:p-6 font-mono text-sm space-y-2 min-h-[280px]">
         {displayedSteps.map((step, i) => (
@@ -174,20 +194,30 @@ export default function AnalysisProcess({ streamingText = '' }: AnalysisProcessP
       </div>
 
       {/* Bottom status bar */}
-      <div className="px-4 py-2 bg-[var(--bg-elevated)] flex items-center justify-between text-[10px] font-mono text-[var(--text-tertiary)]">
-        <div className="flex items-center gap-3">
+      <div className="px-4 py-2 bg-[var(--bg-elevated)] flex items-center justify-between text-[10px] font-mono text-[var(--text-tertiary)] gap-2">
+        <div className="flex items-center gap-3 flex-shrink-0">
           <span>CPU: {cpuUsage}%</span>
           <span>MEM: {memUsage.toFixed(1)}GB</span>
-          <span>AI Engine: DeepSeek</span>
+          <span className="hidden sm:inline">AI Engine: DeepSeek</span>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="w-20 h-1.5 rounded-full bg-[var(--bg-tertiary)] overflow-hidden">
-            <div
-              className="h-full rounded-full bg-[var(--green)] transition-all duration-300"
-              style={{ width: `${progress}%` }}
-            />
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <div className="w-20 h-1.5 rounded-full bg-[var(--bg-tertiary)] overflow-hidden">
+              <div
+                className="h-full rounded-full bg-[var(--green)] transition-all duration-300"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <span>{progress}%</span>
           </div>
-          <span>{progress}%</span>
+          {onCancel && (
+            <button
+              onClick={onCancel}
+              className="btn-primary px-3 py-1.5 rounded text-[var(--red)] hover:bg-[var(--red)]/10 transition-colors border border-transparent hover:border-[var(--red)]/30"
+            >
+              ✕ 取消
+            </button>
+          )}
         </div>
       </div>
     </div>

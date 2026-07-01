@@ -14,7 +14,7 @@ function ConceptSection() {
     { text: '代码有Bug', sub: '条件不变，错误反复触发' },
     { text: '人生也有Bug', sub: '触发条件没解决，坏习惯反复出现' },
     { text: '传统方法', sub: '只喊"我要改"，从不分析"为什么改不了"' },
-    { text: '人生Debug器', sub: '帮你找到根因，给出可执行的 Patch' },
+    { text: '人生Debug器', sub: '帮你找到根因，给出可执行的 Patch', highlight: true },
   ];
 
   return (
@@ -35,11 +35,19 @@ function ConceptSection() {
             </div>
             <div className="space-y-5">
               {concepts.map((item, i) => (
-                <div key={i}>
-                  <div className="font-mono text-sm text-[var(--text-tertiary)] mb-1">
+                <div
+                  key={i}
+                  className={`transition-all duration-500 ${
+                    titleVisible
+                      ? 'opacity-100 translate-x-0'
+                      : 'opacity-0 -translate-x-4'
+                  } ${item.highlight ? 'rounded-lg bg-[var(--green)]/5 border border-[var(--green)]/20 p-3 -ml-3' : ''}`}
+                  style={{ transitionDelay: `${titleVisible ? 200 + i * 150 : 0}ms` }}
+                >
+                  <div className={`font-mono text-sm mb-1 ${item.highlight ? 'text-[var(--green)] font-bold' : 'text-[var(--text-tertiary)]'}`}>
                     {'// '}{item.text}
                   </div>
-                  <p className="text-[var(--text-secondary)] pl-4">
+                  <p className={`pl-4 ${item.highlight ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}>
                     {item.sub}
                   </p>
                 </div>

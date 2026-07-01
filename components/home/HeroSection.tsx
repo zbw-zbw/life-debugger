@@ -134,7 +134,9 @@ const MOBILE_LINES = [
 
 export default function HeroSection() {
   const [typingComplete, setTypingComplete] = useState(false);
+  const [skipAnimation, setSkipAnimation] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [pulsed, setPulsed] = useState(false);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 640);
@@ -144,6 +146,12 @@ export default function HeroSection() {
   }, []);
 
   const lines = isMobile ? MOBILE_LINES : DESKTOP_LINES;
+
+  const handleComplete = () => {
+    setTypingComplete(true);
+    // Trigger pulse once when typing finishes
+    setTimeout(() => setPulsed(true), 100);
+  };
 
   return (
     <section className="relative min-h-screen flex flex-col items-center justify-center px-4 pt-16 overflow-hidden">
@@ -180,11 +188,21 @@ export default function HeroSection() {
               <span className="ml-2 text-xs font-mono text-[var(--text-tertiary)]">
                 life-debugger — bash
               </span>
+              {/* Skip button */}
+              {!typingComplete && (
+                <button
+                  onClick={() => setSkipAnimation(true)}
+                  className="btn-primary ml-auto text-[10px] font-mono text-[var(--text-tertiary)] hover:text-[var(--green)] transition-colors px-2 py-1 rounded"
+                >
+                  skip ⏭
+                </button>
+              )}
             </div>
             <div className="p-4 sm:p-5">
               <TerminalTyping
                 lines={lines}
-                onComplete={() => setTypingComplete(true)}
+                onComplete={handleComplete}
+                skip={skipAnimation}
                 charDelay={25}
                 lineDelay={400}
               />
@@ -192,10 +210,10 @@ export default function HeroSection() {
           </div>
         </div>
 
-        {/* CTA Button */}
+        {/* CTA Button — always visible, pulses when typing completes */}
         <div
           className={`mt-8 flex flex-col items-center gap-3 transition-all duration-500 ${
-            typingComplete ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+            pulsed ? 'hero-cta-pulse' : ''
           }`}
         >
           <Link

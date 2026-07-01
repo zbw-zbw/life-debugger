@@ -63,6 +63,35 @@
   --font-sans: -apple-system, "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
 }
 
+/* ====== Light Theme ====== */
+:root[data-theme="light"] {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f6f8fa;
+  --bg-tertiary: #eaeef2;
+  --bg-elevated: #d8dee4;
+
+  --border-default: #d0d7de;
+  --border-muted: #eaeef2;
+
+  --text-primary: #1f2328;
+  --text-secondary: #656d76;
+  --text-tertiary: #8b949e;
+
+  --green: #1a7f37;
+  --green-muted: #2da44e;
+  --red: #cf222e;
+  --orange: #bc4c00;
+  --blue: #0969da;
+  --purple: #8250df;
+  --yellow: #9a6700;
+
+  --severity-p0: #cf222e;
+  --severity-p1: #cf222e;
+  --severity-p2: #bc4c00;
+  --severity-p3: #0969da;
+  --severity-p4: #656d76;
+}
+
 body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
@@ -124,6 +153,19 @@ textarea {
 }
 .animate-fade-in-up {
   animation: fade-in-up 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Hero CTA pulse */
+@keyframes cta-pulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(57,211,83,0.4); }
+  50% { transform: scale(1.03); box-shadow: 0 0 20px 8px rgba(57,211,83,0.2); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(57,211,83,0); }
+}
+.hero-cta-pulse {
+  animation: cta-pulse 0.8s ease-out;
+}
+.hero-cta-pulse > a:first-child {
+  animation: cta-pulse 0.8s ease-out;
 }
 
 /* Terminal line */

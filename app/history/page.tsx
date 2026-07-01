@@ -92,7 +92,10 @@ export default function HistoryPage() {
 
   const handleCheckIn = (bugId: string) => {
     checkIn(bugId);
-    showToast('success', '今日打卡成功，修复进度 +1');
+    const bug = bugs.find(b => b.id === bugId);
+    const newStreak = (bug?.checkInDates?.length ?? 0) + 1;
+    const milestone = newStreak === 7 ? '🎉 一周连续打卡！' : newStreak === 30 ? '🎉 一个月连续打卡！' : '';
+    showToast('success', milestone || `今日打卡成功，连续 ${newStreak} 天`);
   };
 
   const toggleExpand = (bugId: string) => {

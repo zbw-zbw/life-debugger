@@ -12,6 +12,7 @@ interface TerminalTypingProps {
   onComplete?: () => void;
   charDelay?: number;
   lineDelay?: number;
+  skip?: boolean;
 }
 
 interface State {
@@ -24,7 +25,8 @@ interface State {
 type Action =
   | { type: 'NEXT_CHAR' }
   | { type: 'NEXT_LINE'; fullText: string }
-  | { type: 'COMPLETE' };
+  | { type: 'COMPLETE' }
+  | { type: 'SKIP_ALL'; lines: TerminalLine[] };
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
@@ -39,6 +41,13 @@ function reducer(state: State, action: Action): State {
       };
     case 'COMPLETE':
       return { ...state, isComplete: true };
+    case 'SKIP_ALL':
+      return {
+        displayedLines: action.lines.map(l => l.text),
+        currentLineIndex: action.lines.length,
+        currentCharIndex: 0,
+        isComplete: true,
+      };
     default:
       return state;
   }
@@ -49,6 +58,7 @@ export default function TerminalTyping({
   onComplete,
   charDelay = 30,
   lineDelay = 500,
+  skip = false,
 }: TerminalTypingProps) {
   const [state, dispatch] = useReducer(reducer, {
     displayedLines: [],
@@ -58,6 +68,13 @@ export default function TerminalTyping({
   });
 
   const { displayedLines, currentLineIndex, currentCharIndex, isComplete } = state;
+
+  // Skip animation: show all lines instantly
+  useEffect(() => {
+    if (skip && !isComplete) {
+      dispatch({ type: 'SKIP_ALL', lines });
+    }
+  }, [skip, isComplete, lines]);
 
   const getLinePrefix = (line: TerminalLine) => {
     if (line.styles?.prefix) {
@@ -110,6 +127,8 @@ export default function TerminalTyping({
       return;
     }
 
+    if (skip) return; // Don't schedule timers when skipping
+
     const line = lines[currentLineIndex];
     const fullText = line.text;
 
@@ -124,7 +143,7 @@ export default function TerminalTyping({
       }, lineDelay);
       return () => clearTimeout(timer);
     }
-  }, [currentLineIndex, currentCharIndex, lines, charDelay, lineDelay, isComplete]);
+  }, [currentLineIndex, currentCharIndex, lines, charDelay, lineDelay, isComplete, skip]);
 
   useEffect(() => {
     if (isComplete) {
@@ -140,7 +159,7 @@ export default function TerminalTyping({
           {renderLine(lines[i], line)}
         </div>
       ))}
-      {currentLineIndex < lines.length && (
+      {currentLineIndex < lines.length && !skip && (
         <div>
           {getLinePrefix(lines[currentLineIndex])}
           {renderLine(lines[currentLineIndex], lines[currentLineIndex].text.slice(0, currentCharIndex))}
